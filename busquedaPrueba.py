@@ -8,19 +8,43 @@
 # 5. AOL.com
 # 6. Baidu
 # 7. DuckDuckGo
-class SearchGoogle:
-    def __init__(self, query):
-        self.query = 'search?q='+query
+import requests
+import re
+from bs4 import BeautifulSoup
 
-    def ip(self):
-        pass
+
+USER_AGENT = {'User-Agent':'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/61.0.3163.100 Safari/537.36'}
+
+
+def fetch_results(search_term, number_results, language_code):
+    assert isinstance(search_term, str), 'Search term must be a string'
+    assert isinstance(number_results, int), 'Number of results must be an integer'
+    escaped_search_term = search_term.replace(' ', '+')
+	#q=filetype%3Axml+correos&oq=filetype%3Axml+correos
+    google_url = 'https://www.google.com/{}&num={}&hl={}'.format(escaped_search_term, number_results, language_code)
+    response = requests.get(google_url, headers=USER_AGENT)
+    response.raise_for_status()
+
+    return search_term, response.text.encode('utf-8')
+
+class SearchGoogle:
+    def __init__(self, search):
+        self.search = search
+        self.query= 'search?q='
+	#ip%3A192.168.190.10+local&oq=ip%3A192.168.190.10+local
+    def ip(self,ip):
+		if search=="":
+			self.query+='ip%3A'+ip+'&oq=ip%'+ip
+		else:
+			self.query+='ip%3A'+ip+'+'+self.search+'&oq=ip%'+ip+'+'+self.search
+		return self.query
 
     def mail(self):
         pass
 
     def filetype(self,tipo_archivo):
         # as_filetype=extension
-        self.query += '&as_filetype=' + tipo_archivo
+        self.query += 'filetype%3A' + tipo_archivo+'+'+self.search+'&oq=filetype%3Axml'+'+'+self.search
         return self.query
 
     def site(self, sitio):
@@ -53,23 +77,30 @@ class SearchGoogle:
         self.query += '&as_epq=' + palabra
         return self.query
 
-search = 'prueba filetype:pdf site:www.google.com -uno +dos otroORnada nuevoANDviejo \'palabra\''
+#solo funciona para ip y para filetype por separado
+search = 'prueba ip:192.168.129.24'
 bus = [s for s in search.split(' ')]
 busqueda = SearchGoogle(bus[0])
 for op in bus:
-    if 'site' in op:
-        busqueda.site(op[6:])
-    elif '-' in op:
-        busqueda.exclude(op[1:])
-    elif '+' in op:
-        busqueda.include(op[1:])
-    elif 'OR' in op:
-        busqueda.op_or(op[:op.find('OR')],op[op.find('OR')+2:])
-    elif 'AND' in op:
-        busqueda.op_and(op[:op.find('AND')],op[op.find('AND')+3:])
-    elif 'filetype' in op:
-        busqueda.filetype(op[10:])
-
-print bus
-print busqueda.query
-print 'https://google.com/'+busqueda.query
+	#print op
+	if 'ip' in op:
+		busqueda.ip(op[3:])
+	if 'site' in op:
+		busqueda.site(op[6:])
+	if '-' in op:
+		busqueda.exclude(op[1:])
+	if '+' in op:
+		busqueda.include(op[1:])
+	if 'OR' in op:
+		busqueda.op_or(op[:op.find('OR')],op[op.find('OR')+2:])
+	if 'AND' in op:
+		busqueda.op_and(op[:op.find('AND')],op[op.find('AND')+3:])
+	if 'filetype' in op:
+		busqueda.filetype(op[9:])
+        
+if __name__ == '__main__':
+    keyword, html = fetch_results(busqueda.query, 20, 'en')
+    print(html)
+    #print bus
+    #print busqueda.query
+    #print 'https://google.com/'+busqueda.query
