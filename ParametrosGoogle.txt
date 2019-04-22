@@ -1,5 +1,6 @@
 -----FILETYPE------
-q=filetype%3Axml+correos&oq=filetype%3Axml+correos
+q=filetype%3Axml+correos&oq=filetype%3Axml+correos //Google
+q=filetype%3Apdf+teoria&qs=n //Bing
 
 --------IP---------
 q=ip%3A192.168.190.10+local&oq=ip%3A192.168.190.10+local
