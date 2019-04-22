@@ -1,21 +1,27 @@
-https://www.google.com/search?client=firefox-b-e&ei=nFC9XOGtGceEtQW9vqPYCQ&q=filetype%3Apdf+raven&oq=filetype%3Apdf+raven&gs_l=psy-ab.3...13066.20107..20603...0.0..0.115.589.4j2......0....1..gws-wiz.VfqRNj9VO2k
-https://www.google.com/search?client=firefox-b-e&ei=slC9XLKCKcrAsAWknJygCQ&q=filetype%3Axml+correos&oq=filetype%3Axml+correos&gs_l=psy-ab.3...26377.32246..32961...0.0..0.227.1719.13j4j1......0....1..gws-wiz.......0i71j0i7i30.OVYoVNJSip8
-https://www.google.com/search?client=firefox-b-e&ei=7VC9XLbeH-KMtgXZ0ITgAg&q=filetype%3Apdf+the+reaven&oq=filetype%3Apdf+the+reaven&gs_l=psy-ab.3...347853.353230..353954...0.0..0.173.2472.18j7......0....1..gws-wiz.......0.29f9RVSFkzc
-
+-----FILETYPE------
 q=filetype%3Axml+correos&oq=filetype%3Axml+correos
 
-https://www.google.com/search?client=firefox-b-e&ei=UFK9XOiHL5KEtQXnxYaACQ&q=ip%3A192.168.190.10&oq=ip%3A192.168.190.10&gs_l=psy-ab.3...2218812.2236545..2236792...7.0..0.152.2139.15j7......0....1..gws-wiz.......0i71j0i131j0j0i67.xHjLIvuIjYM
-https://www.google.com/search?client=firefox-b-e&ei=N1u9XKLXNYzysQWBwK4Q&q=ip%3A192.168.190.10+local&oq=ip%3A192.168.190.10+local&gs_l=psy-ab.3...3199.4380..4918...0.0..0.101.459.4j1......0....1..gws-wiz.iNaFfpcywfE
-
+--------IP---------
 q=ip%3A192.168.190.10+local&oq=ip%3A192.168.190.10+local
 
-https://www.google.com/search?client=firefox-b-e&ei=7F29XMDaCsT4tAW3i5OACg&q=site%3Astackoverflow.com+problem&oq=site%3Astackoverflow.com+problem&gs_l=psy-ab.3...2092570.2107847..2108077...7.0..0.171.3715.18j17......0....1..gws-wiz.......0j0i131j0i67j0i10j0i3j0i22i30j0i19j0i10i19j0i22i30i19.B9gNR1z5wjE
-https://www.google.com/search?client=firefox-b-e&ei=KWa9XKLvO8XmsAXQlJPoAQ&q=site%3Astackoverflow.com&oq=site%3Astackoverflow.com&gs_l=psy-ab.3...106335.107395..107996...0.0..0.314.1242.4j1j2j1......0....1..gws-wiz.YBEPKrJ3VsU
-https://www.google.com/search?client=firefox-b-e&ei=vma9XN3qF4jQsAXE-5CIBQ&q=site%3Afciencias.unam.mx+alumnos+profesores&oq=site%3Afciencias.unam.mx+alumnos+profesores&gs_l=psy-ab.3...10880.12572..13203...0.0..0.168.1066.10j1......0....1..gws-wiz.TajjdZ6tEqw
-
+-------SITE--------
 q=site%3Astackoverflow.com+problem&oq=site%3Astackoverflow.com+problem
 q=site%3Astackoverflow.com&oq=site%3Astackoverflow.com
 q=site%3Afciencias.unam.mx+alumnos+profesores&oq=site%3Afciencias.unam.mx+alumnos+profesores
 
-https://www.google.com/search?client=firefox-b-e&biw=1360&bih=604&ei=3mm9XIiMH8WMtgWYsKvgCQ&q=email%3Agmail.com+hi&oq=email%3Agmail.com+hi&gs_l=psy-ab.3...60733.62797..63113...0.0..0.107.280.2j1......0....1..gws-wiz.acw9ZQMpR8c
+-------MAIL--------
 q=email%3Agmail.com+hi&oq=email%3Agmail.com+hi&
+
+--------OR---------
+q=luna+OR+sol&oq=luna+OR+sol
+
+-------AND---------
+q=filetype%3Apdf+AND+site%3Aunam.mx&oq=filetype%3Apdf+AND+site%3Aunam.mx
+q=casa+AND+blanca+AND+jardin&oq=casa+AND+blanca+AND+jardin
+
+------EXCLUDE------
+q=filetype%3Apdf+raven+-Edgar&oq=filetype%3Apdf+raven+-Edgar
+q=casa+-jardin&oq=casa+-jardin
+
+------INCLUDE------
+q=filetype%3Apdf+raven+%2BEdgar&oq=filetype%3Apdf+raven+%2BEdgar

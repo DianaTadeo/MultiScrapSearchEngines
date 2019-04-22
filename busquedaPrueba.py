@@ -39,6 +39,10 @@ def buildQuery(search, browser):
 			query+=site(op[5:],bus[0],browser)
 		if 'mail' in op:
 			query+=mail(op[5:],bus[0],browser)
+		if '-' in op:
+			query+=exclude(op[1:], bus[0], browser)
+		if '+' in op:
+			query+=include(op[1:], bus[0], browser)
 	return query
 
 
@@ -76,18 +80,18 @@ def mail(mail,obj_search,browser):
 		query+='email%3A'+mail+'+'+obj_search+'&oq=email%3A'+mail+'+'+obj_search
 	return query
   
+def exclude(palabra,obj_search,browser):
+	#q=casa+-jardin&oq=casa+-jardin
+	query=''
+	query += obj_search+'+-'+ palabra+'&oq='+obj_search+'+-'+palabra
+	return query
+def include(palabra,obj_search,browser):
+	#q=casa+-jardin&oq=casa+-jardin
+	query=''
+	query += obj_search+'+%2B'+ palabra+'&oq='+obj_search+'+%2B'+palabra
+	return query
+  
 """ 
-
-    def exclude(self, palabra):
-        # q=query+goes+here&as_eq=don't+include+these+words
-        self.query += '&as_eq=' + palabra
-        return self.query
-
-    def include(self, palabra):
-        # q=query+goes+here%2Bterm
-        self.query += '%2B' + palabra
-        return self.query
-
     def op_and(self, op1, op2):
         # query+AND+string
         self.query += '&%s+AND+%s' % (op1, op2)
@@ -109,15 +113,11 @@ def mail(mail,obj_search,browser):
 #search = 'algo ip:192.168.201.45'
 #seacrh = 'problem filetype:pdf'
 #search = 'alumnos site:fciencias.unam.mx'
-search = 'something mail:gmail.com'
+#search = 'something mail:gmail.com'
+#search = 'Benito -Juarez'
+search = 'Benito +Juarez'
 
 """
-	if 'site' in op:
-		busqueda.site(op[6:])
-	if '-' in op:
-		busqueda.exclude(op[1:])
-	if '+' in op:
-		busqueda.include(op[1:])
 	if 'OR' in op:
 		busqueda.op_or(op[:op.find('OR')],op[op.find('OR')+2:])
 	if 'AND' in op:
@@ -127,7 +127,8 @@ search = 'something mail:gmail.com'
 if __name__ == '__main__':
 	
     keyword, html = fetch_results(buildQuery(search, ''), 20, 'en')# 20 es el numero de resultados, se puede cambiar, en es el idioma
+    #print buildQuery(search, '')
     print(html)
     #print bus
-    #print busqueda.query
+    
     #print 'https://google.com/'+busqueda.query
