@@ -78,8 +78,12 @@ def buildQuery(search, browser):
 					query+=include(operacion2.group(2), buildQuery(operacion2.group(1),browser), browser)
 				else:# Si entra pero no es ninguno sale error
 					print('Existe un error de entrada')
-			else:#Si no tiene ninguno de los operadores se manda una b[usqueda normal del tipo 'departamento+barato+cdmx'
-				return re.sub(' ','+',search)
+			else:#Si no tiene ninguno de los operadores
+				operacion3=re.match(r'"(.*)"',search)
+				if operacion3:
+					return '"'+operacion3.group(1)+'"'
+				else:
+					return re.sub(' ','+',search) #se manda una busqueda normal del tipo 'departamento+barato+cdmx'
 	return query
 
 
@@ -158,7 +162,8 @@ def op_or(objL_search,objR_search,browser):
 #search = 'Benito -Juarez'
 #search = 'Benito +Juarez'
 #search = 'filetype:pdf precio AND -comprar AND +jardin'
-search = 'lugar donde vivir en cdmx'
+#search = 'lugar donde vivir en cdmx'
+search = '"Romeo y Julieta"'
 
         
 if __name__ == '__main__':
