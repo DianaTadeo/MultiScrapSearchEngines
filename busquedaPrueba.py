@@ -22,12 +22,15 @@ def fetch_results(search_term, search_engine, number_results = 50, language_code
     escaped_search_term = search_term.replace(' ', '+')
     #url a la que se hara el request... en el primer {} va a ir el query
     ####### Para cada motor de busqueda se formatea su url para hacer el get
-    if search_engine == 'Google': url = 'https://www.google.com/{}&num={}&hl={}'.format(escaped_search_term, number_results, language_code)
-    elif search_engine == 'DuckDuckGo': url = 'https://www.duckduckgo.com/html/{}'.format(escaped_search_term)
+    if search_engine == 'Google': url = 'https://www.google.com/search?q={}&num={}'.format(escaped_search_term, number_results)
+    elif search_engine == 'DuckDuckGo': url = 'https://www.duckduckgo.com/html/search?q={}'.format(escaped_search_term)
+    elif search_engine == 'Bing': url = 'https://www.bing.com/search?q={}&count={}'.format(escaped_search_term, number_results)
+    elif search_engine == 'Yahoo': url = 'https://search.yahoo.com/search?p={}&n={}'.format(escaped_search_term, number_results)
+
     response = requests.get(url, headers=USER_AGENT)
     response.raise_for_status()
 
-    return search_term, response.text.encode('utf-8')#a[un no resuelvo bien esto de la codificacion, pero con este hay salida
+    return search_term, response.text.encode('utf-8')#aun no resuelvo bien esto de la codificacion, pero con este hay salida
 
 def findAO(search,op):
 	"""
@@ -94,16 +97,17 @@ def ip(ip,obj_search,browser):
 	#q=ip%3A192.168.190.10+local&oq=ip%3A192.168.190.10+local
 	query=''
 	if search=='':
-		if browser in ['Google', 'DuckDuckGo']:   query+='ip%3A'+ip+'&oq=ip%'+ip
+		if browser in ['Google', 'DuckDuckGo', 'Bing', 'Yahoo']:   query+='ip%3A'+ip+'&oq=ip%'+ip
 	else:
-		if browser in ['Google', 'DuckDuckGo']:   query+='ip%3A'+ip+'+'+obj_search
+		if browser in ['Google', 'DuckDuckGo', 'Bing', 'Yahoo']:   query+='ip%3A'+ip+'+'+obj_search
 	return query
 
 def filetype(tipo_archivo,obj_search,browser):
-	#q=filetype%3Axml+correos&oq=filetype%3Axml+correos
+	#p=inurl%3A".pdf"+algo
 	query=''
-	if browser == 'Google':	query += 'filetype%3A'+tipo_archivo+'+'+obj_search
+	if browser in ['Google', 'Bing']:	query += 'filetype%3A'+tipo_archivo+'+'+obj_search
 	elif browser == 'DuckDuckGo':	query += obj_search+'+filetype%3A'+tipo_archivo
+	elif browser == 'Yahoo': query+='inurl%3A".'+tipo_archivo+'"+'+obj_search
 
 	return query
 
@@ -112,55 +116,55 @@ def site(site,obj_search,browser):
 	#q=site%3Astackoverflow.com&oq=site%3Astackoverflow.com
 	query=''
 	if search=='':
-		if browser in ['Google', 'DuckDuckGo']:   query+='site%3A' + site+'&oq=site%3A'+site
+		if browser in ['Google', 'DuckDuckGo', 'Bing', 'Yahoo']:   query+='site%3A' + site+'&oq=site%3A'+site
 	else:
-		if browser in ['Google', 'DuckDuckGo']:   query+='site%3A' + site+'+'+obj_search
+		if browser in ['Google', 'DuckDuckGo', 'Bing', 'Yahoo']:   query+='site%3A' + site+'+'+obj_search
 	return query
 
 def mail(mail,obj_search,browser):
 	#q=email%3Agmail.com+hi&oq=email%3Agmail.com+hi&
 	query=''
 	if obj_search=='':
-		if browser in ['Google', 'DuckDuckGo']:   query+='email%3A'+mail+'&oq=email%3A'+mail
+		if browser in ['Google', 'DuckDuckGo', 'Bing']:   query+='email%3A'+mail+'&oq=email%3A'+mail
 	else:
-		if browser in ['Google', 'DuckDuckGo']:   query+='email%3A'+mail+'+'+obj_search
+		if browser in ['Google', 'DuckDuckGo', 'Bing']:   query+='email%3A'+mail+'+'+obj_search
 	return query
 
 def exclude(palabra,obj_search,browser):
 	#q=casa+-jardin&oq=casa+-jardin
 	query=''
 	if obj_search=='':
-		if browser in ['Google', 'DuckDuckGo']:   query+='-'+ palabra
+		if browser in ['Google', 'DuckDuckGo', 'Bing', 'Yahoo']:   query+='-'+ palabra
 	else:
-		if browser in ['Google', 'DuckDuckGo']:   query += obj_search+'+-'+ palabra
+		if browser in ['Google', 'DuckDuckGo', 'Bing', 'Yahoo']:   query += obj_search+'+-'+ palabra
 	return query
 
 def include(palabra,obj_search,browser):
 	#q=casa+-jardin&oq=casa+-jardin
 	query=''
 	if obj_search=='':
-		if browser in ['Google', 'DuckDuckGo']:   query='%2B'+ palabra
+		if browser in ['Google', 'DuckDuckGo', 'Bing', 'Yahoo']:   query='%2B'+ palabra
 	else:
-		if browser in ['Google', 'DuckDuckGo']:   query += obj_search+'+%2B'+ palabra
+		if browser in ['Google', 'DuckDuckGo', 'Bing', 'Yahoo']:   query += obj_search+'+%2B'+ palabra
 	return query
 
 def op_and(objL_search,objR_search,browser):
 	#q=casa+AND+blanca+AND+jardin
 	query=''
-	if browser in ['Google', 'DuckDuckGo']:    query += objL_search+'+AND+'+ objR_search
+	if browser in ['Google', 'DuckDuckGo', 'Bing', 'Yahoo']:    query += objL_search+'+AND+'+ objR_search
 	return query
 
 def op_or(objL_search,objR_search,browser):
 	#q=casa+AND+blanca+AND+jardin
 	query=''
-	if browser in ['Google', 'DuckDuckGo']:    query += objL_search+'+OR+'+ objR_search
+	if browser in ['Google', 'DuckDuckGo', 'Bing', 'Yahoo']:    query += objL_search+'+OR+'+ objR_search
 	return query
 
 
 #-------------------Para probar----------------
 # redirige la salida a un archivo.html y sevisa la salida de la busqueda
 
-#search = 'algo ip:192.168.201.45'
+#search = 'ip:192.168.201.45 algo'
 #search = 'problem filetype:pdf'
 #search = 'site:fciencias.unam.mx alumnos'
 #search = 'something mail:gmail.com'
@@ -172,12 +176,14 @@ search = '"Romeo y Julieta"'
 
 
 if __name__ == '__main__':
-	#findAO(search,'OR')
     ##### Se hace consulta por motor
-    keyword_google, html_google = fetch_results('?q='+buildQuery(search, 'Google'), 'Google', 20, 'en')# 20 es el numero de resultados, se puede cambiar, en es el idioma
-    keyword_duckDuckGo, html_duckDuckGo = fetch_results('?q='+buildQuery(search, 'DuckDuckGo'), 'DuckDuckGo')
+    keyword_google, html_google = fetch_results(buildQuery(search, 'Google'), 'Google', 20)# 20 es el numero de resultados, se puede cambiar, en es el idioma
+    keyword_duckDuckGo, html_duckDuckGo = fetch_results(buildQuery(search, 'DuckDuckGo'), 'DuckDuckGo')
+    keyword_bing, html_bing = fetch_results(buildQuery(search, 'Bing'), 'Bing', 20)
+    keyword_yahoo, html_yahoo = fetch_results(buildQuery(search, 'Yahoo'), 'Yahoo', 20)
     ### Salida de búsqueda en Google
-    print(html_google)
+    #print(buildQuery(search, 'Bing'))
+    print(html_yahoo)
     ### Salida de búsqueda en DuckDuckGo
     #print(html_duckDuckGo)
     #print '+%2B'
