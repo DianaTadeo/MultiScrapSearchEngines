@@ -7,7 +7,7 @@
 # 4. Ask.com
 # 5. AOL.com
 # 6. Baidu
-# 7. DuckDuckGo
+# 7. DuckDuckGo : https://duckduckgo.com/html/?q=
 import requests
 import re
 from bs4 import BeautifulSoup
@@ -16,14 +16,15 @@ from bs4 import BeautifulSoup
 USER_AGENT = {'User-Agent':'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/61.0.3163.100 Safari/537.36'}
 
 
-def fetch_results(search_term, number_results, language_code):
+def fetch_results(search_term, search_engine, number_results = 50, language_code = 'en'):
     assert isinstance(search_term, str), 'Search term must be a string'
     assert isinstance(number_results, int), 'Number of results must be an integer'
     escaped_search_term = search_term.replace(' ', '+')
     #url a la que se hara el request... en el primer {} va a ir el query
-    google_url = 'https://www.google.com/{}&num={}&hl={}'.format(escaped_search_term, number_results, language_code)
-    print google_url
-    response = requests.get(google_url, headers=USER_AGENT)
+    ####### Para cada motor de busqueda se formatea su url para hacer el get
+    if search_engine == 'Google': url = 'https://www.google.com/{}&num={}&hl={}'.format(escaped_search_term, number_results, language_code)
+    elif search_engine == 'DuckDuckGo': url = 'https://www.duckduckgo.com/html/{}'.format(escaped_search_term)
+    response = requests.get(url, headers=USER_AGENT)
     response.raise_for_status()
 
     return search_term, response.text.encode('utf-8')#a[un no resuelvo bien esto de la codificacion, pero con este hay salida
@@ -66,6 +67,7 @@ def buildQuery(search, browser):
 				query+=ip(operacion.group(2).strip(),operacion.group(3),browser)
 			elif 'filetype' in operacion.group(1):
 				query+=filetype(operacion.group(2).strip(),operacion.group(3),browser)
+				print query
 			elif 'site' in operacion.group(1):
 				query+=site(operacion.group(2).strip(),operacion.group(3),browser)
 			elif 'mail' in operacion.group(1):
@@ -92,15 +94,17 @@ def ip(ip,obj_search,browser):
 	#q=ip%3A192.168.190.10+local&oq=ip%3A192.168.190.10+local
 	query=''
 	if search=='':
-		query+='ip%3A'+ip+'&oq=ip%'+ip
+		if browser in ['Google', 'DuckDuckGo']:   query+='ip%3A'+ip+'&oq=ip%'+ip
 	else:
-		query+='ip%3A'+ip+'+'+obj_search
+		if browser in ['Google', 'DuckDuckGo']:   query+='ip%3A'+ip+'+'+obj_search
 	return query
 
 def filetype(tipo_archivo,obj_search,browser):
 	#q=filetype%3Axml+correos&oq=filetype%3Axml+correos
 	query=''
-	query += 'filetype%3A'+tipo_archivo+'+'+obj_search
+	if browser == 'Google':	query += 'filetype%3A'+tipo_archivo+'+'+obj_search
+	elif browser == 'DuckDuckGo':	query += obj_search+'+filetype%3A'+tipo_archivo
+
 	return query
 
 def site(site,obj_search,browser):
@@ -108,48 +112,48 @@ def site(site,obj_search,browser):
 	#q=site%3Astackoverflow.com&oq=site%3Astackoverflow.com
 	query=''
 	if search=='':
-		query+='site%3A' + site+'&oq=site%3A'+site
+		if browser in ['Google', 'DuckDuckGo']:   query+='site%3A' + site+'&oq=site%3A'+site
 	else:
-		query+='site%3A' + site+'+'+obj_search
+		if browser in ['Google', 'DuckDuckGo']:   query+='site%3A' + site+'+'+obj_search
 	return query
 
 def mail(mail,obj_search,browser):
 	#q=email%3Agmail.com+hi&oq=email%3Agmail.com+hi&
 	query=''
 	if obj_search=='':
-		query+='email%3A'+mail+'&oq=email%3A'+mail
+		if browser in ['Google', 'DuckDuckGo']:   query+='email%3A'+mail+'&oq=email%3A'+mail
 	else:
-		query+='email%3A'+mail+'+'+obj_search
+		if browser in ['Google', 'DuckDuckGo']:   query+='email%3A'+mail+'+'+obj_search
 	return query
 
 def exclude(palabra,obj_search,browser):
 	#q=casa+-jardin&oq=casa+-jardin
 	query=''
 	if obj_search=='':
-		query+='-'+ palabra
+		if browser in ['Google', 'DuckDuckGo']:   query+='-'+ palabra
 	else:
-		query += obj_search+'+-'+ palabra
+		if browser in ['Google', 'DuckDuckGo']:   query += obj_search+'+-'+ palabra
 	return query
 
 def include(palabra,obj_search,browser):
 	#q=casa+-jardin&oq=casa+-jardin
 	query=''
 	if obj_search=='':
-		query='%2B'+ palabra
+		if browser in ['Google', 'DuckDuckGo']:   query='%2B'+ palabra
 	else:
-		query += obj_search+'+%2B'+ palabra
+		if browser in ['Google', 'DuckDuckGo']:   query += obj_search+'+%2B'+ palabra
 	return query
 
 def op_and(objL_search,objR_search,browser):
 	#q=casa+AND+blanca+AND+jardin
 	query=''
-	query += objL_search+'+AND+'+ objR_search
+	if browser in ['Google', 'DuckDuckGo']:    query += objL_search+'+AND+'+ objR_search
 	return query
 
 def op_or(objL_search,objR_search,browser):
 	#q=casa+AND+blanca+AND+jardin
 	query=''
-	query += objL_search+'+OR+'+ objR_search
+	if browser in ['Google', 'DuckDuckGo']:    query += objL_search+'+OR+'+ objR_search
 	return query
 
 
@@ -157,21 +161,23 @@ def op_or(objL_search,objR_search,browser):
 # redirige la salida a un archivo.html y sevisa la salida de la busqueda
 
 #search = 'algo ip:192.168.201.45'
-#seacrh = 'problem filetype:pdf'
-#search = 'alumnos site:fciencias.unam.mx'
+#search = 'problem filetype:pdf'
+#search = 'site:fciencias.unam.mx alumnos'
 #search = 'something mail:gmail.com'
 #search = 'Benito -Juarez'
 #search = 'Benito +Juarez'
-#search = 'filetype:pdf precio AND -comprar AND +jardin'
+#search = 'filetype:pdf precio AND -comprar AND +jardin'  # checar
 #search = 'lugar donde vivir en cdmx'
 search = '"Romeo y Julieta"'
 
 
 if __name__ == '__main__':
 	#findAO(search,'OR')
-    keyword, html = fetch_results('search?q='+buildQuery(search, ''), 20, 'en')# 20 es el numero de resultados, se puede cambiar, en es el idioma
-    #print buildQuery(search,'')
-    print(html)
+    ##### Se hace consulta por motor
+    keyword_google, html_google = fetch_results('?q='+buildQuery(search, 'Google'), 'Google', 20, 'en')# 20 es el numero de resultados, se puede cambiar, en es el idioma
+    keyword_duckDuckGo, html_duckDuckGo = fetch_results('?q='+buildQuery(search, 'DuckDuckGo'), 'DuckDuckGo')
+    ### Salida de búsqueda en Google
+    print(html_google)
+    ### Salida de búsqueda en DuckDuckGo
+    #print(html_duckDuckGo)
     #print '+%2B'
-
-    #print 'https://google.com/'+busqueda.query
