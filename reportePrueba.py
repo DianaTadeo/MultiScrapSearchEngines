@@ -22,7 +22,7 @@ def printLinks(links):
 if __name__ == '__main__':
 	search = 'filetype:pdf unam site:unam.mx'
 	### Por ahora solamente probado con Google
-	keyword_google, query_google = busqueda.search_results(search, 'Google', 50)
+	query_google = busqueda.search_results(search, 'Google', 50)[1]
 	soup_google = beautifulSoup(query_google)
 	#print soup_google.prettify().encode('utf-8')  # se formatea en html para poder obtener lo que se requiera con soup
 	links_google = getLinks([ href.get('href') for href in soup_google.findAll('a') ])
