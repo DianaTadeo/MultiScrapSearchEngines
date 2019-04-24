@@ -26,7 +26,7 @@ def fetch_results(search_term, search_engine, number_results = 50, language_code
 	elif search_engine == 'DuckDuckGo': url = 'https://www.duckduckgo.com/html/search?q={}'.format(escaped_search_term)
 	elif search_engine == 'Bing': url = 'https://www.bing.com/search?q={}&count={}'.format(escaped_search_term, number_results)
 	elif search_engine == 'Yahoo': url = 'https://search.yahoo.com/search?p={}&n={}'.format(escaped_search_term, number_results)
-	elif search_engine == 'Baidu': url = 'https://www.baidu.com/s?ie=utf-8&f=8&rsv_bp=1&tn=baidu&{}&rqlang={}&rsv_enter=1&rn={}'.format(escaped_search_term, language_code, number_results)
+	elif search_engine == 'Baidu': url = 'https://www.baidu.com/s?ie=utf-8&f=8&rsv_bp=1&tn=baidu&wd={}&rqlang={}&rsv_enter=1&rn={}'.format(escaped_search_term, language_code, number_results)
 	elif search_engine == 'Ask': url = 'https://www.ask.com/web?q={}'.format(escaped_search_term)
 
 	response = requests.get(url, headers=USER_AGENT)
@@ -170,6 +170,9 @@ def op_or(objL_search,objR_search,browser):
 	elif browser == 'Baidu':    query += '('+objL_search+'%7C'+objR_search+')'
 	return query
 
+def search_results(search, search_engine, number_results = 50, language_code = 'en'):
+	"""Función para llamar a fetch_results desde modulo de reporte sin tener que llamar a buildQuery desde ese módulo"""
+	return fetch_results(buildQuery(search, search_engine), search_engine, number_results, language_code)
 
 #-------------------Para probar----------------
 # redirige la salida a un archivo.html y sevisa la salida de la busqueda
@@ -191,7 +194,7 @@ if __name__ == '__main__':
 	keyword_duckDuckGo, html_duckDuckGo = fetch_results(buildQuery(search, 'DuckDuckGo'), 'DuckDuckGo')
 	keyword_bing, html_bing = fetch_results(buildQuery(search, 'Bing'), 'Bing', 20)
 	keyword_yahoo, html_yahoo = fetch_results(buildQuery(search, 'Yahoo'), 'Yahoo', 20)
-	keyword_baidu, html_baidu = fetch_results('wd='+buildQuery(search, 'Baidu'), 'Baidu', 50, 'all')  # solamente: Chino simplificado o Chino tradicional
+	keyword_baidu, html_baidu = fetch_results(buildQuery(search, 'Baidu'), 'Baidu', 50, 'all')  # solamente: Chino simplificado o Chino tradicional
 	keyword_ask, html_ask = fetch_results(buildQuery(search, 'Ask'), 'Ask')
 	### Salida de búsqueda en Google
 	#print(buildQuery(search, 'Ask'))
