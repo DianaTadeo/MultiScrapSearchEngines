@@ -23,10 +23,10 @@ def fetch_results(search_term, search_engine, number_results = 50, language_code
 	#url a la que se hara el request... en el primer {} va a ir el query
 	####### Para cada motor de busqueda se formatea su url para hacer el get
 	if search_engine == 'Google': url = 'https://www.google.com/search?q={}&num={}'.format(escaped_search_term, number_results)
-	elif search_engine == 'DuckDuckGo': url = 'https://www.duckduckgo.com/html/search?q={}'.format(escaped_search_term)
+	elif search_engine == 'DuckDuckGo': url = 'https://www.duckduckgo.com/html/?q={}'.format(escaped_search_term)
 	elif search_engine == 'Bing': url = 'https://www.bing.com/search?q={}&count={}'.format(escaped_search_term, number_results)
 	elif search_engine == 'Yahoo': url = 'https://search.yahoo.com/search?p={}&n={}'.format(escaped_search_term, number_results)
-	elif search_engine == 'Baidu': url = 'https://www.baidu.com/s?ie=utf-8&f=8&rsv_bp=1&tn=baidu&wd={}&rqlang={}&rsv_enter=1&rn={}'.format(escaped_search_term, language_code, number_results)
+	elif search_engine == 'Baidu': url = 'https://www.baidu.com/s?ie=utf-8&f=8&rsv_bp=1&tn=baidu&wd={}&rqlang=all&rsv_enter=1&rn={}'.format(escaped_search_term, number_results)
 	elif search_engine == 'Ask': url = 'https://www.ask.com/web?q={}'.format(escaped_search_term)
 
 	response = requests.get(url, headers=USER_AGENT)
@@ -131,7 +131,7 @@ def mail(mail,obj_search,browser):
 		elif browser == 'Yahoo': query+='mail%3A'+mail
 	else:
 		if browser in ['Google', 'DuckDuckGo', 'Bing', 'Baidu']:   query+='email%3A'+mail+'+'+obj_search
-		elif brpwser in ['Yahoo','Ask']: query+='mail%3A'+mail+'+'+obj_search
+		elif browser in ['Yahoo','Ask']: query+='mail%3A'+mail+'+'+obj_search
 	return query
 
 def exclude(palabra,obj_search,browser):
@@ -194,7 +194,7 @@ if __name__ == '__main__':
 	keyword_duckDuckGo, html_duckDuckGo = fetch_results(buildQuery(search, 'DuckDuckGo'), 'DuckDuckGo')
 	keyword_bing, html_bing = fetch_results(buildQuery(search, 'Bing'), 'Bing', 20)
 	keyword_yahoo, html_yahoo = fetch_results(buildQuery(search, 'Yahoo'), 'Yahoo', 20)
-	keyword_baidu, html_baidu = fetch_results(buildQuery(search, 'Baidu'), 'Baidu', 50, 'all')  # solamente: Chino simplificado o Chino tradicional
+	keyword_baidu, html_baidu = fetch_results(buildQuery(search, 'Baidu'), 'Baidu', 50)  # solamente: Chino simplificado o Chino tradicional
 	keyword_ask, html_ask = fetch_results(buildQuery(search, 'Ask'), 'Ask')
 	### Salida de búsqueda en Google
 	#print(buildQuery(search, 'Ask'))
