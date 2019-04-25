@@ -103,7 +103,8 @@ if __name__ == '__main__':
 		# url = buildURL(server = opts.motor)
 		for i in range(0,1): # Sería el número de veces que se hará la petición (por ejemplo para los correos que deberan ser varias)
 			makeRequest('', opts.agente, opts.tor)
-			reporte.busquedaReporte('hola')  # Se hace la busqueda en todos los motores
+			# ip:103.28.149.206
+			reporte.busquedaReporte('ip:103.28.149.206')  # Se hace la busqueda en todos los motores
 			if opts.tor:  # Para pruebas de cambio de IP con tor
 				changeIP()
 			sleep(5)  # Tor no permite asignar nuevas direcciones inmedaitamente
