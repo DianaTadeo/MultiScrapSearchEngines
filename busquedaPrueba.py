@@ -28,6 +28,7 @@ def fetch_results(search_term, search_engine, number_results = 50, language_code
 	elif search_engine == 'Yahoo': url = 'https://search.yahoo.com/search?p={}&n={}'.format(escaped_search_term, number_results)
 	elif search_engine == 'Baidu': url = 'https://www.baidu.com/s?ie=utf-8&f=8&rsv_bp=1&tn=baidu&wd={}&rqlang=all&rsv_enter=1&rn={}'.format(escaped_search_term, number_results)
 	elif search_engine == 'Ask': url = 'https://www.ask.com/web?q={}'.format(escaped_search_term)
+	elif search_engine == 'AOL': url = 'https://search.aol.com/aol/search?q={}&pz={}'.format(escaped_search_term,number_results)
 
 	response = requests.get(url, headers=USER_AGENT)
 	response.raise_for_status()
@@ -110,6 +111,7 @@ def filetype(tipo_archivo,obj_search,browser):
 	if browser in ['Google', 'Bing', 'Baidu', 'Ask']:	query += 'filetype%3A'+tipo_archivo+'+'+obj_search
 	elif browser == 'DuckDuckGo':	query += obj_search+'+filetype%3A'+tipo_archivo
 	elif browser == 'Yahoo': query+='inurl%3A".'+tipo_archivo+'"+'+obj_search
+	elif browser == 'AOL': query+='filetype-'+tipo_archivo+'+'+obj_search
 
 	return query
 
@@ -119,8 +121,10 @@ def site(site,obj_search,browser):
 	query=''
 	if search=='':
 		if browser in ['Google', 'DuckDuckGo', 'Bing', 'Yahoo', 'Baidu', 'Ask']:   query+='site%3A' + site+'&oq=site%3A'+site
+		elif browser == 'AOL': query+='site-'+site
 	else:
 		if browser in ['Google', 'DuckDuckGo', 'Bing', 'Yahoo', 'Baidu', 'Ask']:   query+='site%3A' + site+'+'+obj_search
+		elif browser == 'AOL': query+='site-'+site+'+'+obj_search
 	return query
 
 def mail(mail,obj_search,browser):
@@ -128,20 +132,22 @@ def mail(mail,obj_search,browser):
 	query=''
 	if obj_search=='':
 		if browser in ['Google', 'DuckDuckGo', 'Bing', 'Baidu']:   query+='email%3A'+mail+'&oq=email%3A'+mail
-		elif browser == 'Yahoo': query+='mail%3A'+mail
+		elif browser in ['Yahoo','Ask']:query+='mail%3A'+mail
+		elif browser == 'AOL': query+='mail-'+mail
 	else:
 		if browser in ['Google', 'DuckDuckGo', 'Bing', 'Baidu']:   query+='email%3A'+mail+'+'+obj_search
 		elif browser in ['Yahoo','Ask']: query+='mail%3A'+mail+'+'+obj_search
+		elif browser == 'AOL': query+='mail-'+mail+'+'+obj_search
 	return query
 
 def exclude(palabra,obj_search,browser):
 	#q=casa+-jardin&oq=casa+-jardin
 	query=''
 	if obj_search=='':
-		if browser in ['Google', 'DuckDuckGo', 'Bing', 'Yahoo', 'Ask']:   query+='-'+ palabra
+		if browser in ['Google', 'DuckDuckGo', 'Bing', 'Yahoo', 'Ask', 'AOL']:   query+='-'+ palabra
 		elif browser == 'Baidu':    query+='-('+ palabra + ')'
 	else:
-		if browser in ['Google', 'DuckDuckGo', 'Bing', 'Yahoo', 'Ask']:   query += obj_search+'+-'+ palabra
+		if browser in ['Google', 'DuckDuckGo', 'Bing', 'Yahoo', 'Ask', 'AOL']:   query += obj_search+'+-'+ palabra
 		elif browser == 'Baidu':    query += obj_search+'+-('+ palabra + ')'
 	return query
 
@@ -149,10 +155,10 @@ def include(palabra,obj_search,browser):
 	#q=casa+-jardin&oq=casa+-jardin
 	query=''
 	if obj_search=='':
-		if browser in ['Google', 'DuckDuckGo', 'Bing', 'Yahoo', 'Ask']:   query='%2B'+ palabra
+		if browser in ['Google', 'DuckDuckGo', 'Bing', 'Yahoo', 'Ask', 'AOL']:   query='%2B'+ palabra
 		elif browser == 'Baidu':    query='%2B('+ palabra + ')'
 	else:
-		if browser in ['Google', 'DuckDuckGo', 'Bing', 'Yahoo', 'Ask']:   query += obj_search+'+%2B'+ palabra
+		if browser in ['Google', 'DuckDuckGo', 'Bing', 'Yahoo', 'Ask', 'AOL']:   query += obj_search+'+%2B'+ palabra
 		elif browser == 'Baidu':    query += obj_search+'+%2B('+ palabra + ')'
 	return query
 
@@ -161,6 +167,7 @@ def op_and(objL_search,objR_search,browser):
 	query=''
 	if browser in ['Google', 'DuckDuckGo', 'Bing', 'Yahoo', 'Ask']:    query += objL_search+'+AND+'+ objR_search
 	elif browser == 'Baidu':    query += '('+objL_search+') ('+objR_search+')'
+	elif browser == 'AOL': query+=objL_search+'+and+'+objR_search
 	return query
 
 def op_or(objL_search,objR_search,browser):
@@ -168,6 +175,7 @@ def op_or(objL_search,objR_search,browser):
 	query=''
 	if browser in ['Google', 'DuckDuckGo', 'Bing', 'Yahoo', 'Ask']:    query += objL_search+'+OR+'+ objR_search
 	elif browser == 'Baidu':    query += '('+objL_search+'%7C'+objR_search+')'
+	elif browser == 'AOL': query+=objL_search+'+or+'+objR_search
 	return query
 
 def search_results(search, search_engine, number_results = 50, language_code = 'en'):
@@ -196,10 +204,11 @@ if __name__ == '__main__':
 	keyword_yahoo, html_yahoo = fetch_results(buildQuery(search, 'Yahoo'), 'Yahoo', 20)
 	keyword_baidu, html_baidu = fetch_results(buildQuery(search, 'Baidu'), 'Baidu', 50)  # solamente: Chino simplificado o Chino tradicional
 	keyword_ask, html_ask = fetch_results(buildQuery(search, 'Ask'), 'Ask')
+	keyword_AOL, html_AOL = fetch_results(buildQuery(search, 'AOL'), 'AOL', 20)
 	### Salida de búsqueda en Google
 	#print(buildQuery(search, 'Ask'))
 	#print(html_yahoo)
 	### Salida de búsqueda en DuckDuckGo
 	#print(html_duckDuckGo)
-	print(html_ask)
+	print(html_AOL)
 	#print '+%2B'
