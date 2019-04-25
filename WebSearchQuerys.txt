@@ -1,0 +1,88 @@
+web?q=hola+magazine+from+spain
+-----FILETYPE------
+q=filetype%3Axml+correos 		//Google
+q=filetype%3Apdf+teoria		 	//Bing
+p=inurl%3A".pdf"+algo			//Yahoo
+q=filetype%3Apdf+life			//ask
+q=filetype-pdf+raven			//AOL
+text=raven&mime=xls				//Yandex
+q=raven&filetype=pdf			//Gigablast
+q=filetype%3Apdf+life			//Exalead
+
+--------IP---------
+q=ip%3A192.168.190.10+local		//Google
+q=ip%3A6.7.217.196+php			//Bing		
+p=ip%3A66.7.217.196+php			//Yahoo
+q=ip%3A69.63.181.15				//Ask
+q=ip-69.63.181.15				//AOL
+text=ip%3A69.63.181.15			//Yandex
+//Gigablast
+q=ip%3A69.63.181.15				//Exalead
+
+-------SITE--------
+q=site%3Aunam.mx+alumnos 		//Google
+q=site%3Aunam.mx+alumnos		//Bing
+p=site%3Aunam.mx+ciencia		//Yahoo
+q=site%3Aunam.mx+alumno			//Ask
+q=site-unam.mx+ciencia			//AOL
+q=site%3Aunam.mx+alumno         //Giribu
+text=alumnos&site=unam.mx		//Yandex
+q=site%3Aunam.mx+alumnos		//Gigablast
+q=site%3Aunam.mx+alumnos		//Exalead
+
+-------MAIL--------
+q=email%3Agmail.com+hi			//Google
+q=email%3Agmail.com+hi			//Bing
+p=mail%3Afacebook.com			//Yahoo
+q=mail%3Afacebook.com			//Ask
+q=mail-facebook.com				//AOL
+text=mail%3Afacebook.com		//Yandex
+q=email+facebook.com			//Gigablast
+//Exalead
+
+--------OR---------
+q=luna+OR+sol					//Google
+q=sol+OR+luna					//Bing
+p=lugar+OR+place				//Yahoo
+q=lugar+OR+place				//Ask
+q=mar+or+playa					//AOL
+//Yandex
+q=mar+or+playa					//Gigablast
+q=(mar)+or+(playa)				//Exalead
+
+-------AND---------
+q=casa+AND+blanca+AND+jardin	//Google
+q=sol+AND+luna+AND+cielo		//Bing
+p=sol+AND+luna+AND+cielo		//Yahoo
+q=sol+AND+luna+AND+cielo		//Ask
+q=mar+and+playa					//AOL
+text=sol+AND+luna+AND+cielo		//Yandex
+q=mar+and+playa					//Gigablast
+q=mar+and+playa					//Exalead
+
+------EXCLUDE------
+q=casa+-jardin					//Google
+q=face+-facebook				//Bing
+p=face+-facebook				//Yahoo
+q=face+-facebook				//Ask
+query=vegetable+-zucchini		//AOL
+text=face+-facebook				//Ynadex
+q=face+-facebook				//Gigablast
+q=face+-facebook				//Exalead
+
+
+------INCLUDE------
+q=filetype%3Apdf+raven+%2BEdgar	//Google
+q=face+%2Bfacebook				//Bing
+p=casa+%2Bjardin				//Yahoo
+q=face+%2Bfacebook				//Ask
+query=vegetable+%2Bzucchini		//AOL
+text=face+%2Bfacebook			//Yandex
+p=casa+%2Bjardin				//Gigablast
+q=face+%2Bfacebook				//Exalead
+
+https://www.ask.com/web?o=0&l=dir&qo=pagination&q=filetype%3Apdf%20raven%20-Edgar&qsrc=998&page=2
+https://search.aol.com/aol/search;_ylt=AwrJ7Jxn8r9c0oQA6RlpCWVH;_ylc=X1MDMTE5NzgwMzg4MQRfcgMyBGZyA25hBGdwcmlkA0twbzlWY0JtVFNpT0xuUzdDcEloY0EEbl9yc2x0AzAEbl9zdWdnAzEEb3JpZ2luA3NlYXJjaC5hb2wuY29tBHBvcwMwBHBxc3RyAwRwcXN0cmwDMARxc3RybAMxNwRxdWVyeQNtYWlsLWZhY2Vib29rLmNvbQR0X3N0bXADMTU1NjA4MzMyMA--?q=mail-facebook.com&s_it=sb-top&v_t=na
+https://search.aol.com/aol/search;_ylt=A2KIbMl48r9clkMADDJpCWVH;_ylu=X3oDMTEzajVvczlrBGNvbG8DYmYxBHBvcwMxBHZ0aWQDBHNlYwNwYWdpbmF0aW9u?q=mail-facebook.com&v_t=na&b=11&pz=10&bct=0&xargs=0
+https://search.aol.com/aol/search;_ylt=Awr9Ds44O8FcNE4An6hpCWVH;_ylu=X3oDMTEza3NiY3RnBGNvbG8DZ3ExBHBvcwMxBHZ0aWQDBHNlYwNwYWdpbmF0aW9u?q=mail-facebook.com&pz=10&bct=0&v_t=na&b=21&pz=10&bct=0&xargs=0
+https://search.aol.com/aol/search;_ylt=Awr9ImldO8Fc2IUAeThpCWVH;_ylu=X3oDMTEza3NiY3RnBGNvbG8DZ3ExBHBvcwMxBHZ0aWQDBHNlYwNwYWdpbmF0aW9u?q=mail-facebook.com&pz=10&bct=0&v_t=na&b=41&pz=10&bct=0&xargs=0
