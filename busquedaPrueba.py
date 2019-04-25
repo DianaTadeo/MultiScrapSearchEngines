@@ -115,7 +115,7 @@ def filetype(tipo_archivo,obj_search,web_search):
 	#p=inurl%3A".pdf"+algo
 	query=''
 	if web_search in ['Google', 'Bing', 'Baidu', 'Ask', 'Exalead']:	query += 'filetype%3A'+tipo_archivo+'+'+obj_search
-	elif web_search == 'DuckDuckGo':	query += obj_search+'+filetype%3A'+tipo_archivo
+	elif web_search == 'DuckDuckGo':	query += obj_search+'+filetype%3A'+tipo_archivo+' inurl:'+tipo_archivo.split()[0]
 	elif web_search == 'Yahoo': query+='inurl%3A".'+tipo_archivo+'"+'+obj_search
 	elif web_search == 'AOL': query+='filetype-'+tipo_archivo+'+'+obj_search
 	elif web_search == 'Yandex': query+=obj_search+'&mime='+tipo_archivo
