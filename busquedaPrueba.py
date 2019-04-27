@@ -22,19 +22,19 @@ USER_AGENT = {'User-Agent':'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKi
 def fetch_results(search_term, search_engine, number_results = 50, language_code = 'en'):
 	assert isinstance(search_term, str), 'Search term must be a string'
 	assert isinstance(number_results, int), 'Number of results must be an integer'
-	escaped_search_term = search_term.replace(' ', '+')
+	#escaped_search_term = search_term.replace(' ', '+')
 	#url a la que se hara el request... en el primer {} va a ir el query
 	####### Para cada motor de busqueda se formatea su url para hacer el get
-	if search_engine == 'Google': url = 'https://www.google.com/search?q={}&num={}'.format(escaped_search_term, number_results)
-	elif search_engine == 'DuckDuckGo': url = 'https://www.duckduckgo.com/html/?q={}'.format(escaped_search_term)
-	elif search_engine == 'Bing': url = 'https://www.bing.com/search?q={}&count={}'.format(escaped_search_term, number_results)
-	elif search_engine == 'Yahoo': url = 'https://search.yahoo.com/search?p={}&n={}'.format(escaped_search_term, number_results)
-	elif search_engine == 'Baidu': url = 'https://www.baidu.com/s?ie=utf-8&f=8&rsv_bp=1&tn=baidu&wd={}&rqlang={}&rsv_enter=1&rn={}'.format(escaped_search_term, language_code,number_results)
-	elif search_engine == 'Ask': url = 'https://www.ask.com/web?q={}'.format(escaped_search_term)
-	elif search_engine == 'AOL': url = 'https://search.aol.com/aol/search?q={}&pz={}'.format(escaped_search_term,number_results)
-	elif search_engine == 'Yandex': url = 'https://yandex.com/search/?text={}'.format(escaped_search_term)
-	elif search_engine == 'Ecosia': url = 'https://www.ecosia.org/search?q={}'.format(escaped_search_term)
-	elif search_engine == 'Exalead': url = 'https://www.exalead.com/search/web/results/?q={}&elements_per_page={}'.format(escaped_search_term,number_results)
+	if search_engine == 'Google': url = 'https://www.google.com/search?q={}&num={}'.format(search_term, number_results)
+	elif search_engine == 'DuckDuckGo': url = 'https://www.duckduckgo.com/html/?q={}'.format(search_term)
+	elif search_engine == 'Bing': url = 'https://www.bing.com/search?q={}&count={}'.format(search_term, number_results)
+	elif search_engine == 'Yahoo': url = 'https://search.yahoo.com/search?p={}&n={}'.format(search_term, number_results)
+	elif search_engine == 'Baidu': url = 'https://www.baidu.com/s?ie=utf-8&f=8&rsv_bp=1&tn=baidu&wd={}&rqlang={}&rsv_enter=1&rn={}'.format(search_term, language_code,number_results)
+	elif search_engine == 'Ask': url = 'https://www.ask.com/web?q={}'.format(search_term)
+	elif search_engine == 'AOL': url = 'https://search.aol.com/aol/search?q={}&pz={}'.format(search_term,number_results)
+	elif search_engine == 'Lycos': url = 'http://search.lycos.es/web/?q={}&OrigLycosTld=es&keyvol=1'.format(search_term)
+	elif search_engine == 'Ecosia': url = 'https://www.ecosia.org/search?q={}'.format(search_term)
+	elif search_engine == 'Exalead': url = 'https://www.exalead.com/search/web/results/?q={}&elements_per_page={}'.format(search_term,number_results)
 
 	#response = requests.get(url, headers=USER_AGENT)
 	#response.raise_for_status()
@@ -84,12 +84,12 @@ def buildQuery(search, web_search):
 			elif 'mail' in operacion.group(1):
 				query+=mail(operacion.group(2).strip(),operacion.group(3),web_search)
 		else:# si no es del tipo ':'
-			operacion2=re.match(r'(.*)[-|+](.*)',search)
+			operacion2=re.match(r'(.*) [-|+](.*)',search)
 			if operacion2: #Si es operador include o exclude
 				if '-' in search:
-					query+=exclude(operacion2.group(2), buildQuery(operacion2.group(1),web_search), web_search)
+					query+=exclude(operacion2.group(3), buildQuery(operacion2.group(1),web_search), web_search)
 				if '+' in search:
-					query+=include(operacion2.group(2), buildQuery(operacion2.group(1),web_search), web_search)
+					query+=include(operacion2.group(3), buildQuery(operacion2.group(1),web_search), web_search)
 				else:# Si entra pero no es ninguno sale error
 					print('Existe un error de entrada')
 			else:#Si no tiene ninguno de los operadores
@@ -106,19 +106,20 @@ def ip(ip,obj_search,web_search):
 	#q=ip%3A192.168.190.10+local&oq=ip%3A192.168.190.10+local
 	query=''
 	if search=='':
-		if web_search in ['Google', 'DuckDuckGo', 'Bing', 'Yahoo', 'Baidu', 'Ask', 'Yandex', 'Exalead', 'Ecosia']:   query+='ip%3A'+ip+'&oq=ip%'+ip
+		if web_search in ['Google', 'DuckDuckGo', 'Bing', 'Yahoo', 'Baidu', 'Ask', 'Exalead', 'Ecosia']:   query+='ip%3A'+ip+'&oq=ip%'+ip
+		elif web_search == 'Lycos': query+='ip+'+ip
 	else:
-		if web_search in ['Google', 'DuckDuckGo', 'Bing', 'Yahoo', 'Baidu', 'Ask', 'Yandex', 'Exalead', 'Ecosia']:   query+='ip%3A'+ip+'+'+obj_search
+		if web_search in ['Google', 'DuckDuckGo', 'Bing', 'Yahoo', 'Baidu', 'Ask', 'Exalead', 'Ecosia']:   query+='ip%3A'+ip+'+'+obj_search
+		elif web_search == 'Lycos': query+='ip+'+ip+'+'+obj_search
 	return query
 
 def filetype(tipo_archivo,obj_search,web_search):
 	#p=inurl%3A".pdf"+algo
 	query=''
-	if web_search in ['Google', 'Bing', 'Baidu', 'Ask', 'Exalead', 'Ecosia']:	query += 'filetype%3A'+tipo_archivo+'+'+obj_search
+	if web_search in ['Google', 'Bing', 'Baidu', 'Ask', 'Exalead', 'Ecosia', 'Lycos']:	query += 'filetype%3A'+tipo_archivo+'+'+obj_search
 	elif web_search == 'DuckDuckGo':	query += obj_search+'+filetype%3A'+tipo_archivo+' inurl:'+tipo_archivo.split()[0]
 	elif web_search == 'Yahoo': query+='inurl%3A".'+tipo_archivo+'"+'+obj_search
 	elif web_search == 'AOL': query+='filetype-'+tipo_archivo+'+'+obj_search
-	elif web_search == 'Yandex': query+=obj_search+'&mime='+tipo_archivo
 
 	return query
 
@@ -129,23 +130,23 @@ def site(site,obj_search,web_search):
 	if search=='':
 		if web_search in ['Google', 'DuckDuckGo', 'Bing', 'Yahoo', 'Baidu', 'Ask', 'Exalead', 'Ecosia']:   query+='site%3A' + site+'&oq=site%3A'+site
 		elif web_search == 'AOL': query+='site-'+site
-		elif web_search == 'Yandex': query+=site+'&site='+site
+		elif web_search == 'Lycos': query+='site+'+site
 	else:
 		if web_search in ['Google', 'DuckDuckGo', 'Bing', 'Yahoo', 'Baidu', 'Ask', 'Exalead', 'Ecosia']:   query+='site%3A' + site+'+'+obj_search
 		elif web_search == 'AOL': query+='site-'+site+'+'+obj_search
-		elif web_search == 'Yandex': query+=obj_search+'&site='+site
+		elif web_search == 'Lycos': query+='site+'+site+'+'+obj_Search
 	return query
 
 def mail(mail,obj_search,web_search):
 	#q=email%3Agmail.com+hi&oq=email%3Agmail.com+hi&
 	query=''
 	if obj_search=='':
-		if web_search in ['Google', 'DuckDuckGo', 'Bing', 'Baidu', 'Ecosia']:   query+='email%3A'+mail+'&oq=email%3A'+mail
-		elif web_search in ['Yahoo','Ask','Yandex']:query+='mail%3A'+mail
+		if web_search in ['Google', 'DuckDuckGo', 'Bing', 'Baidu', 'Ecosia', 'Lycos']:   query+='email%3A'+mail+'&oq=email%3A'+mail
+		elif web_search in ['Yahoo','Ask']:query+='mail%3A'+mail
 		elif web_search == 'AOL': query+='mail-'+mail
 	else:
-		if web_search in ['Google', 'DuckDuckGo', 'Bing', 'Baidu', 'Ecosia']:   query+='email%3A'+mail+'+'+obj_search
-		elif web_search in ['Yahoo','Ask', 'Yandex']: query+='mail%3A'+mail+'+'+obj_search
+		if web_search in ['Google', 'DuckDuckGo', 'Bing', 'Baidu', 'Ecosia', 'Lycos']:   query+='email%3A'+mail+'+'+obj_search
+		elif web_search in ['Yahoo','Ask']: query+='mail%3A'+mail+'+'+obj_search
 		elif web_search == 'AOL': query+='mail-'+mail+'+'+obj_search
 	return query
 
@@ -153,10 +154,10 @@ def exclude(palabra,obj_search,web_search):
 	#q=casa+-jardin&oq=casa+-jardin
 	query=''
 	if obj_search=='':
-		if web_search in ['Google', 'DuckDuckGo', 'Bing', 'Yahoo', 'Ask', 'AOL', 'Yandex', 'Ecosia', 'Exalead']:   query+='-'+ palabra
+		if web_search in ['Google', 'DuckDuckGo', 'Bing', 'Yahoo', 'Ask', 'AOL', 'Lycos', 'Ecosia', 'Exalead']:   query+='-'+ palabra
 		elif web_search == 'Baidu':    query+='-('+ palabra + ')'
 	else:
-		if web_search in ['Google', 'DuckDuckGo', 'Bing', 'Yahoo', 'Ask', 'AOL', 'Yandex', 'Ecosia', 'Exalead']:   query += obj_search+'+-'+ palabra
+		if web_search in ['Google', 'DuckDuckGo', 'Bing', 'Yahoo', 'Ask', 'AOL', 'Lycos', 'Ecosia', 'Exalead']:   query += obj_search+'+-'+ palabra
 		elif web_search == 'Baidu':    query += obj_search+'+-('+ palabra + ')'
 	return query
 
@@ -164,17 +165,17 @@ def include(palabra,obj_search,web_search):
 	#q=casa+-jardin&oq=casa+-jardin
 	query=''
 	if obj_search=='':
-		if web_search in ['Google', 'DuckDuckGo', 'Bing', 'Yahoo', 'Ask', 'AOL', 'Yendex', 'Ecosia', 'Exalead']:   query='%2B'+ palabra
+		if web_search in ['Google', 'DuckDuckGo', 'Bing', 'Yahoo', 'Ask', 'AOL', 'Lycos', 'Ecosia', 'Exalead']:   query='%2B'+ palabra
 		elif web_search == 'Baidu':    query='%2B('+ palabra + ')'
 	else:
-		if web_search in ['Google', 'DuckDuckGo', 'Bing', 'Yahoo', 'Ask', 'AOL', 'Yandex', 'Ecosia', 'Exalead']:   query += obj_search+'+%2B'+ palabra
+		if web_search in ['Google', 'DuckDuckGo', 'Bing', 'Yahoo', 'Ask', 'AOL', 'Lycos', 'Ecosia', 'Exalead']:   query += obj_search+'+%2B'+ palabra
 		elif web_search == 'Baidu':    query += obj_search+'+%2B('+ palabra + ')'
 	return query
 
 def op_and(objL_search,objR_search,web_search):
 	#q=casa+AND+blanca+AND+jardin
 	query=''
-	if web_search in ['Google', 'DuckDuckGo', 'Bing', 'Yahoo', 'Ask', 'Yandex', 'Ecosia','Exalead']:    query += objL_search+'+AND+'+ objR_search
+	if web_search in ['Google', 'DuckDuckGo', 'Bing', 'Yahoo', 'Ask', 'Ecosia','Exalead', 'Lycos']:    query += objL_search+'+AND+'+ objR_search
 	elif web_search == 'Baidu':    query += '('+objL_search+') ('+objR_search+')'
 	elif web_search == 'AOL': query+=objL_search+'+and+'+objR_search
 	return query
@@ -186,6 +187,7 @@ def op_or(objL_search,objR_search,web_search):
 	elif web_search == 'Baidu':    query += '('+objL_search+'%7C'+objR_search+')'
 	elif web_search == 'AOL': query+=objL_search+'+or+'+objR_search
 	elif web_search == 'Exalead':    query += '('+objL_search+')+OR+('+objR_search+')'
+	elif web_search == 'Lycos': query+= objL_search+'+%7C+'+objR_search
 	return query
 
 def search_results(search, search_engine, number_results = 50, language_code = 'en'):

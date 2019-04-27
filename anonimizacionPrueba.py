@@ -96,7 +96,7 @@ def makeRequest(motor, agente, tor, search):
 		session.proxies = {}
 		session.proxies['http'] = 'socks5://localhost:9050'  # Proxy http y https para realizar la petición mediante TOR
 		session.proxies['https'] = 'socks5://localhost:9050'
-		query=busqueda.search_results(busqueda.buildQuery(search, 'Ecosia'), 'Ecosia')
+		query=busqueda.search_results(busqueda.buildQuery(search, 'Lycos'), 'Lycos')
 		#---------Session prepare_request--------------
 		response =requests.Request('GET',query, headers=header)
 		prepared= session.prepare_request(response)
@@ -111,6 +111,7 @@ def makeRequest(motor, agente, tor, search):
 		#response.raise_for_status()
 		#print response.text.encode('utf-8')
 		getInfoRequest(session, header)
+		#print query
 
 	except ConnectionError:
 		printError('Error en la conexion.',True)
@@ -120,7 +121,7 @@ if __name__ == '__main__':
 		opts = addOptions()
 		checkOptions(opts)
 		for i in range(0,1): # Sería el número de veces que se hará la petición (por ejemplo para los correos que deberan ser varias)
-			query=makeRequest('', opts.agente, opts.tor, 'ip:103.28.149.206')
+			query=makeRequest('', opts.agente, opts.tor, 'romeo y julieta')
 			if opts.tor:  # Para pruebas de cambio de IP con tor
 				changeIP()
 			sleep(5)  # Tor no permite asignar nuevas direcciones inmedaitamente
