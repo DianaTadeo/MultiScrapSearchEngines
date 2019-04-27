@@ -29,17 +29,17 @@ def fetch_results(search_term, search_engine, number_results = 50, language_code
 	elif search_engine == 'DuckDuckGo': url = 'https://www.duckduckgo.com/html/?q={}'.format(escaped_search_term)
 	elif search_engine == 'Bing': url = 'https://www.bing.com/search?q={}&count={}'.format(escaped_search_term, number_results)
 	elif search_engine == 'Yahoo': url = 'https://search.yahoo.com/search?p={}&n={}'.format(escaped_search_term, number_results)
-	elif search_engine == 'Baidu': url = 'https://www.baidu.com/s?ie=utf-8&f=8&rsv_bp=1&tn=baidu&wd={}&rqlang=all&rsv_enter=1&rn={}'.format(escaped_search_term, number_results)
+	elif search_engine == 'Baidu': url = 'https://www.baidu.com/s?ie=utf-8&f=8&rsv_bp=1&tn=baidu&wd={}&rqlang={}&rsv_enter=1&rn={}'.format(escaped_search_term, language_code,number_results)
 	elif search_engine == 'Ask': url = 'https://www.ask.com/web?q={}'.format(escaped_search_term)
 	elif search_engine == 'AOL': url = 'https://search.aol.com/aol/search?q={}&pz={}'.format(escaped_search_term,number_results)
 	elif search_engine == 'Yandex': url = 'https://yandex.com/search/?text={}'.format(escaped_search_term)
-	elif search_engine == 'Gigablast': url = 'https://www.gigablast.com/search?q={}&fiab=3'.format(escaped_search_term)
+	elif search_engine == 'Ecosia': url = 'https://www.ecosia.org/search?q={}'.format(escaped_search_term)
 	elif search_engine == 'Exalead': url = 'https://www.exalead.com/search/web/results/?q={}&elements_per_page={}'.format(escaped_search_term,number_results)
 
-	response = requests.get(url, headers=USER_AGENT)
-	response.raise_for_status()
+	#response = requests.get(url, headers=USER_AGENT)
+	#response.raise_for_status()
 
-	return search_term, response.text.encode('utf-8')#aun no resuelvo bien esto de la codificacion, pero con este hay salida
+	return url #search_term, response.text.encode('utf-8')#aun no resuelvo bien esto de la codificacion, pero con este hay salida
 
 def findAO(search,op):
 	"""
@@ -106,20 +106,19 @@ def ip(ip,obj_search,web_search):
 	#q=ip%3A192.168.190.10+local&oq=ip%3A192.168.190.10+local
 	query=''
 	if search=='':
-		if web_search in ['Google', 'DuckDuckGo', 'Bing', 'Yahoo', 'Baidu', 'Ask', 'Yandex', 'Exalead']:   query+='ip%3A'+ip+'&oq=ip%'+ip
+		if web_search in ['Google', 'DuckDuckGo', 'Bing', 'Yahoo', 'Baidu', 'Ask', 'Yandex', 'Exalead', 'Ecosia']:   query+='ip%3A'+ip+'&oq=ip%'+ip
 	else:
-		if web_search in ['Google', 'DuckDuckGo', 'Bing', 'Yahoo', 'Baidu', 'Ask', 'Yandex', 'Exalead']:   query+='ip%3A'+ip+'+'+obj_search
+		if web_search in ['Google', 'DuckDuckGo', 'Bing', 'Yahoo', 'Baidu', 'Ask', 'Yandex', 'Exalead', 'Ecosia']:   query+='ip%3A'+ip+'+'+obj_search
 	return query
 
 def filetype(tipo_archivo,obj_search,web_search):
 	#p=inurl%3A".pdf"+algo
 	query=''
-	if web_search in ['Google', 'Bing', 'Baidu', 'Ask', 'Exalead']:	query += 'filetype%3A'+tipo_archivo+'+'+obj_search
+	if web_search in ['Google', 'Bing', 'Baidu', 'Ask', 'Exalead', 'Ecosia']:	query += 'filetype%3A'+tipo_archivo+'+'+obj_search
 	elif web_search == 'DuckDuckGo':	query += obj_search+'+filetype%3A'+tipo_archivo+' inurl:'+tipo_archivo.split()[0]
 	elif web_search == 'Yahoo': query+='inurl%3A".'+tipo_archivo+'"+'+obj_search
 	elif web_search == 'AOL': query+='filetype-'+tipo_archivo+'+'+obj_search
 	elif web_search == 'Yandex': query+=obj_search+'&mime='+tipo_archivo
-	elif web_search == 'Gigablast': query+=obj_search+'&filetype='+tipo_archivo
 
 	return query
 
@@ -128,11 +127,11 @@ def site(site,obj_search,web_search):
 	#q=site%3Astackoverflow.com&oq=site%3Astackoverflow.com
 	query=''
 	if search=='':
-		if web_search in ['Google', 'DuckDuckGo', 'Bing', 'Yahoo', 'Baidu', 'Ask', 'Gigablast', 'Exalead']:   query+='site%3A' + site+'&oq=site%3A'+site
+		if web_search in ['Google', 'DuckDuckGo', 'Bing', 'Yahoo', 'Baidu', 'Ask', 'Exalead', 'Ecosia']:   query+='site%3A' + site+'&oq=site%3A'+site
 		elif web_search == 'AOL': query+='site-'+site
 		elif web_search == 'Yandex': query+=site+'&site='+site
 	else:
-		if web_search in ['Google', 'DuckDuckGo', 'Bing', 'Yahoo', 'Baidu', 'Ask', 'Gigablast', 'Exalead']:   query+='site%3A' + site+'+'+obj_search
+		if web_search in ['Google', 'DuckDuckGo', 'Bing', 'Yahoo', 'Baidu', 'Ask', 'Exalead', 'Ecosia']:   query+='site%3A' + site+'+'+obj_search
 		elif web_search == 'AOL': query+='site-'+site+'+'+obj_search
 		elif web_search == 'Yandex': query+=obj_search+'&site='+site
 	return query
@@ -141,25 +140,23 @@ def mail(mail,obj_search,web_search):
 	#q=email%3Agmail.com+hi&oq=email%3Agmail.com+hi&
 	query=''
 	if obj_search=='':
-		if web_search in ['Google', 'DuckDuckGo', 'Bing', 'Baidu']:   query+='email%3A'+mail+'&oq=email%3A'+mail
+		if web_search in ['Google', 'DuckDuckGo', 'Bing', 'Baidu', 'Ecosia']:   query+='email%3A'+mail+'&oq=email%3A'+mail
 		elif web_search in ['Yahoo','Ask','Yandex']:query+='mail%3A'+mail
 		elif web_search == 'AOL': query+='mail-'+mail
-		elif web_search == 'Gigablast': query+='email+'+mail
 	else:
-		if web_search in ['Google', 'DuckDuckGo', 'Bing', 'Baidu']:   query+='email%3A'+mail+'+'+obj_search
+		if web_search in ['Google', 'DuckDuckGo', 'Bing', 'Baidu', 'Ecosia']:   query+='email%3A'+mail+'+'+obj_search
 		elif web_search in ['Yahoo','Ask', 'Yandex']: query+='mail%3A'+mail+'+'+obj_search
 		elif web_search == 'AOL': query+='mail-'+mail+'+'+obj_search
-		elif web_search == 'Gigablast': query+='email+'+mail+'+'+obj_search
 	return query
 
 def exclude(palabra,obj_search,web_search):
 	#q=casa+-jardin&oq=casa+-jardin
 	query=''
 	if obj_search=='':
-		if web_search in ['Google', 'DuckDuckGo', 'Bing', 'Yahoo', 'Ask', 'AOL', 'Yandex', 'Gigablast', 'Exalead']:   query+='-'+ palabra
+		if web_search in ['Google', 'DuckDuckGo', 'Bing', 'Yahoo', 'Ask', 'AOL', 'Yandex', 'Ecosia', 'Exalead']:   query+='-'+ palabra
 		elif web_search == 'Baidu':    query+='-('+ palabra + ')'
 	else:
-		if web_search in ['Google', 'DuckDuckGo', 'Bing', 'Yahoo', 'Ask', 'AOL', 'Yandex', 'Gigablast', 'Exalead']:   query += obj_search+'+-'+ palabra
+		if web_search in ['Google', 'DuckDuckGo', 'Bing', 'Yahoo', 'Ask', 'AOL', 'Yandex', 'Ecosia', 'Exalead']:   query += obj_search+'+-'+ palabra
 		elif web_search == 'Baidu':    query += obj_search+'+-('+ palabra + ')'
 	return query
 
@@ -167,17 +164,17 @@ def include(palabra,obj_search,web_search):
 	#q=casa+-jardin&oq=casa+-jardin
 	query=''
 	if obj_search=='':
-		if web_search in ['Google', 'DuckDuckGo', 'Bing', 'Yahoo', 'Ask', 'AOL', 'Yendex', 'Gigablast', 'Exalead']:   query='%2B'+ palabra
+		if web_search in ['Google', 'DuckDuckGo', 'Bing', 'Yahoo', 'Ask', 'AOL', 'Yendex', 'Ecosia', 'Exalead']:   query='%2B'+ palabra
 		elif web_search == 'Baidu':    query='%2B('+ palabra + ')'
 	else:
-		if web_search in ['Google', 'DuckDuckGo', 'Bing', 'Yahoo', 'Ask', 'AOL', 'Yandex', 'Gigablast', 'Exalead']:   query += obj_search+'+%2B'+ palabra
+		if web_search in ['Google', 'DuckDuckGo', 'Bing', 'Yahoo', 'Ask', 'AOL', 'Yandex', 'Ecosia', 'Exalead']:   query += obj_search+'+%2B'+ palabra
 		elif web_search == 'Baidu':    query += obj_search+'+%2B('+ palabra + ')'
 	return query
 
 def op_and(objL_search,objR_search,web_search):
 	#q=casa+AND+blanca+AND+jardin
 	query=''
-	if web_search in ['Google', 'DuckDuckGo', 'Bing', 'Yahoo', 'Ask', 'Yandex', 'Gigablast','Exalead']:    query += objL_search+'+AND+'+ objR_search
+	if web_search in ['Google', 'DuckDuckGo', 'Bing', 'Yahoo', 'Ask', 'Yandex', 'Ecosia','Exalead']:    query += objL_search+'+AND+'+ objR_search
 	elif web_search == 'Baidu':    query += '('+objL_search+') ('+objR_search+')'
 	elif web_search == 'AOL': query+=objL_search+'+and+'+objR_search
 	return query
@@ -185,7 +182,7 @@ def op_and(objL_search,objR_search,web_search):
 def op_or(objL_search,objR_search,web_search):
 	#q=casa+AND+blanca+AND+jardin
 	query=''
-	if web_search in ['Google', 'DuckDuckGo', 'Bing', 'Yahoo', 'Ask','Gigablast']:    query += objL_search+'+OR+'+ objR_search
+	if web_search in ['Google', 'DuckDuckGo', 'Bing', 'Yahoo', 'Ask','Ecosia']:    query += objL_search+'+OR+'+ objR_search
 	elif web_search == 'Baidu':    query += '('+objL_search+'%7C'+objR_search+')'
 	elif web_search == 'AOL': query+=objL_search+'+or+'+objR_search
 	elif web_search == 'Exalead':    query += '('+objL_search+')+OR+('+objR_search+')'
@@ -194,37 +191,3 @@ def op_or(objL_search,objR_search,web_search):
 def search_results(search, search_engine, number_results = 50, language_code = 'en'):
 	"""Función para llamar a fetch_results desde modulo de reporte sin tener que llamar a buildQuery desde ese módulo"""
 	return fetch_results(buildQuery(search, search_engine), search_engine, number_results, language_code)
-
-#-------------------Para probar----------------
-# redirige la salida a un archivo.html y sevisa la salida de la busqueda
-
-#search = 'ip:192.168.201.45 algo'
-#search = 'filetype:pdf casa'
-#search = 'site:fciencias.unam.mx alumnos'
-#search = 'something mail:gmail.com'
-#search = 'Benito -Juarez'
-#search = 'Benito +Juarez'
-#search = 'precio -comprar +jardin'  # checar
-#search = 'lugar donde vivir en cdmx'
-search = 'Romeo y Julieta'
-
-
-if __name__ == '__main__':
-	##### Se hace consulta por motor
-	keyword_google, html_google = fetch_results(buildQuery(search, 'Google'), 'Google', 20)# 20 es el numero de resultados, se puede cambiar, en es el idioma
-	keyword_duckDuckGo, html_duckDuckGo = fetch_results(buildQuery(search, 'DuckDuckGo'), 'DuckDuckGo')
-	keyword_bing, html_bing = fetch_results(buildQuery(search, 'Bing'), 'Bing', 20)
-	keyword_yahoo, html_yahoo = fetch_results(buildQuery(search, 'Yahoo'), 'Yahoo', 20)
-	keyword_baidu, html_baidu = fetch_results(buildQuery(search, 'Baidu'), 'Baidu', 50)  # solamente: Chino simplificado o Chino tradicional
-	keyword_ask, html_ask = fetch_results(buildQuery(search, 'Ask'), 'Ask')
-	keyword_AOL, html_AOL = fetch_results(buildQuery(search, 'AOL'), 'AOL', 20)
-	keyword_yandex, html_yandex = fetch_results(buildQuery(search, 'Yandex'), 'Yandex')
-	keyword_giga, html_giga = fetch_results(buildQuery(search, 'Gigablast'), 'Gigablast')
-	keyword_exalead, html_exalead = fetch_results(buildQuery(search, 'Exalead'), 'Exalead', 50)
-	### Salida de búsqueda en Google
-	#print(buildQuery(search, 'Gigablast'))
-	#print(html_yahoo)
-	### Salida de búsqueda en DuckDuckGo
-	#print(html_yandex)
-	print(html_giga)
-	#print '+%2B'

@@ -3,6 +3,7 @@
 
 from requests import Session  # session para realizar las peticiones mediante TOR  # pip install requests
 from requests.exceptions import ConnectionError
+import requests
 from stem import Signal  # pip install stem
 from stem.control import Controller
 from random import choice
@@ -10,6 +11,7 @@ from time import sleep
 from sys import exit,stderr
 import argparse
 import reportePrueba as reporte
+import busquedaPrueba as busqueda
 # /etc/tor/torrc -> ControlPort 9051 ->
 # NOTA: control requiere privilegios
 
@@ -56,11 +58,14 @@ def getInfoRequest(session, header):
 	ip = session.get('http://httpbin.org/ip', headers = header)  # Se obtiene la ip desde la que se hace la petición
 	ip = str(ip.text).replace('  "origin\":','').replace('{','').replace('}','').replace('\n','').replace(',','\"')
 	ip = ip[:ip.find('\"',2)+1]
-	agente = session.get('https://httpbin.org/user-agent', headers = header)  # Se obtiene el agente de usuario con el que se hace la petición
-	agente = str(agente.text).replace('  \"user-agent\":','').replace('{','').replace('}','').replace('\n','')
+	
+	agente = session.get('http://httpbin.org/ip', headers = header)  # Se obtiene el agente de usuario con el que se hace la petición
+	
+	agente= str(agente.text).replace('  \"user-agent\":','').replace('{','').replace('}','').replace('\n','')
 
 	print 'La petición se realiza desde:%s' % (ip)
 	print 'El agente de usuario es:%s' % (agente)
+
 
 def changeIP():
 	"""Función para cambiar la dirección IP desde la que se hace la petición (se hacen desde Tor).
@@ -70,7 +75,7 @@ def changeIP():
 		controller.authenticate()
 		controller.signal(Signal.NEWNYM)
 
-def makeRequest(motor, agente, tor):
+def makeRequest(motor, agente, tor, search):
 	"""Función que realiza las peticiones anónimas.
 	Recibe: motor en donde realiza la búsqueda
 	Si --tor es True se realiza la petición a través de TOR mediante los proxies y session()
@@ -89,8 +94,22 @@ def makeRequest(motor, agente, tor):
 	try:
 		header = {'User-agent':choice(user_agent)}  # Valor que se agrega al diccionario para cambiar el agente
 		session.proxies = {}
-		session.proxies['http'] = 'socks5h://localhost:9050'  # Proxy http y https para realizar la petición mediante TOR
-		session.proxies['https'] = 'socks5h://localhost:9050'
+		session.proxies['http'] = 'socks5://localhost:9050'  # Proxy http y https para realizar la petición mediante TOR
+		session.proxies['https'] = 'socks5://localhost:9050'
+		query=busqueda.search_results(busqueda.buildQuery(search, 'Ecosia'), 'Ecosia')
+		#---------Session prepare_request--------------
+		response =requests.Request('GET',query, headers=header)
+		prepared= session.prepare_request(response)
+		resp= session.send(prepared)
+		print resp.text.encode('utf-8')
+		#---------Session simple---------
+		#result = session.get(query, headers = header)
+		#result.raise_for_status()
+		#print result.text.encode('utf-8')
+		#---------Sin anonimato-----------
+		#response =requests.get(query, headers=header)
+		#response.raise_for_status()
+		#print response.text.encode('utf-8')
 		getInfoRequest(session, header)
 
 	except ConnectionError:
@@ -100,11 +119,8 @@ if __name__ == '__main__':
 	try:
 		opts = addOptions()
 		checkOptions(opts)
-		# url = buildURL(server = opts.motor)
 		for i in range(0,1): # Sería el número de veces que se hará la petición (por ejemplo para los correos que deberan ser varias)
-			makeRequest('', opts.agente, opts.tor)
-			# ip:103.28.149.206
-			reporte.busquedaReporte('ip:103.28.149.206')  # Se hace la busqueda en todos los motores
+			query=makeRequest('', opts.agente, opts.tor, 'ip:103.28.149.206')
 			if opts.tor:  # Para pruebas de cambio de IP con tor
 				changeIP()
 			sleep(5)  # Tor no permite asignar nuevas direcciones inmedaitamente

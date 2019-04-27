@@ -37,14 +37,15 @@ def getResults(search, links, search_engine = ''):
 			printLinks(getDomainAssociated(links, search[search.find('ip:'):]))
 	else:
 		printLinks(links)
-def busquedaReporte(search):
-	search_engines = ['Google', 'Bing', 'Baidu', 'Yahoo', 'DuckDuckGo', 'AOL', 'Ask']
-	#search_engines = ['Bing']
+		
+def busquedaReporte(search, query):
+	#search_engines = ['Google', 'Bing', 'Baidu', 'Yahoo', 'DuckDuckGo', 'AOL', 'Ask']
+	search_engines = ['Gigablast']
 	for search_engine in search_engines:
-		query = busqueda.search_results(search, search_engine, 50)[1]
+		#query = busqueda.search_results(search, search_engine, 50)[1]
 		soup = beautifulSoup(query)
-		print search_engine
-		#print soup.prettify('utf-8')
+		#print search_engine
+		print soup.prettify('utf-8')
 		if search_engine in ['Google', 'Bing', 'DuckDuckGo', 'Ask']:
 			links = getLinks([ href.get('href') for href in soup.findAll('a') ]) # Google
 			getResults(search, links, search_engine)
@@ -56,12 +57,14 @@ def busquedaReporte(search):
 		elif search_engine == 'Baidu':
 			links = getLinks([ href.find('a', href=True)['href'] for href in soup.findAll('div', {'class': 'c-container'}) ])  # baidu
 			getResults(search,links)
+		else:
+			print query
 
 if __name__ == '__main__':
 	search = 'filetype:pdf unam site:unam.mx'
 	#search = 'ip:192.168'
 	#search_engines = ['Google', 'Bing', 'Baidu', 'Yahoo']
-	search_engines = ['DuckDuckGo']
+	search_engines = ['Gigablast']
 	for search_engine in search_engines:
 		query = busqueda.search_results(search, search_engine, 50)[1]
 		soup = beautifulSoup(query)
