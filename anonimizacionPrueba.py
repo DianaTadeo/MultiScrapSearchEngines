@@ -30,7 +30,7 @@ def addOptions():
 	parser.add_argument('-p','--params', action='store_true', dest='param', default=False, help='Resultados con parámetros GET.')
 	# parser.add_argument('-m','--motor', dest='motor', default=None, help='Motor de búsqueda.')
 	parser.add_argument('-t', '--tor', action='store_true', dest = 'tor', default = False, help = 'Las peticiones se hacen por medio de TOR.')
-	parser.add_argument('-a', '--agente', action='store_true', dest = 'agente', default = False, help = 'Se cambia el agente de usuario.')
+	#parser.add_argument('-a', '--agente', action='store_true', dest = 'agente', default = False, help = 'Se cambia el agente de usuario.')
 
 	opts = parser.parse_args()
 	return opts
@@ -58,9 +58,9 @@ def getInfoRequest(session, header):
 	ip = session.get('http://httpbin.org/ip', headers = header)  # Se obtiene la ip desde la que se hace la petición
 	ip = str(ip.text).replace('  "origin\":','').replace('{','').replace('}','').replace('\n','').replace(',','\"')
 	ip = ip[:ip.find('\"',2)+1]
-	
-	agente = session.get('http://httpbin.org/ip', headers = header)  # Se obtiene el agente de usuario con el que se hace la petición
-	
+
+	agente = session.get('http://httpbin.org/user-agent', headers = header)  # Se obtiene el agente de usuario con el que se hace la petición
+
 	agente= str(agente.text).replace('  \"user-agent\":','').replace('{','').replace('}','').replace('\n','')
 
 	print 'La petición se realiza desde:%s' % (ip)
@@ -75,7 +75,7 @@ def changeIP():
 		controller.authenticate()
 		controller.signal(Signal.NEWNYM)
 
-def makeRequest(motor, agente, tor, search):
+def makeRequest(search, search_engine):
 	"""Función que realiza las peticiones anónimas.
 	Recibe: motor en donde realiza la búsqueda
 	Si --tor es True se realiza la petición a través de TOR mediante los proxies y session()
@@ -96,12 +96,12 @@ def makeRequest(motor, agente, tor, search):
 		session.proxies = {}
 		session.proxies['http'] = 'socks5://localhost:9050'  # Proxy http y https para realizar la petición mediante TOR
 		session.proxies['https'] = 'socks5://localhost:9050'
-		query=busqueda.search_results(busqueda.buildQuery(search, 'Lycos'), 'Lycos')
+		url = busqueda.search_results(busqueda.buildQuery(search, search_engine), search_engine)
 		#---------Session prepare_request--------------
-		response =requests.Request('GET',query, headers=header)
-		prepared= session.prepare_request(response)
-		resp= session.send(prepared)
-		print resp.text.encode('utf-8')
+		response = requests.Request('GET', url, headers=header)
+		prepared = session.prepare_request(response)
+		resp = session.send(prepared)
+		#print resp.text.encode('utf-8')
 		#---------Session simple---------
 		#result = session.get(query, headers = header)
 		#result.raise_for_status()
@@ -111,6 +111,7 @@ def makeRequest(motor, agente, tor, search):
 		#response.raise_for_status()
 		#print response.text.encode('utf-8')
 		getInfoRequest(session, header)
+		return url, resp.text.encode('utf-8')
 		#print query
 
 	except ConnectionError:
@@ -121,7 +122,12 @@ if __name__ == '__main__':
 		opts = addOptions()
 		checkOptions(opts)
 		for i in range(0,1): # Sería el número de veces que se hará la petición (por ejemplo para los correos que deberan ser varias)
-			query=makeRequest('', opts.agente, opts.tor, 'romeo y julieta')
+			#search_engines = ['Bing', 'Baidu', 'Yahoo', 'DuckDuckGo', 'AOL', 'Ask', 'Exalead', 'Lycos', 'Ecosia']
+			search_engines = ['AOL']
+			for search_engine in search_engines:
+				url, query = makeRequest('romeo y julieta', search_engine)
+				print '%s: %s' % (search_engine, url)
+				reporte.busquedaReporte('romeo y julieta', query, search_engine)
 			if opts.tor:  # Para pruebas de cambio de IP con tor
 				changeIP()
 			sleep(5)  # Tor no permite asignar nuevas direcciones inmedaitamente
