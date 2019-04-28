@@ -100,7 +100,7 @@ def makeRequest(search, search_engine):
 		#---------Session prepare_request--------------
 		response = requests.Request('GET', url, headers=header)
 		prepared = session.prepare_request(response)
-		resp = session.send(prepared)
+		resp = session.send(prepared, timeout = 5)
 		#print resp.text.encode('utf-8')
 		#---------Session simple---------
 		#result = session.get(query, headers = header)
@@ -122,14 +122,15 @@ if __name__ == '__main__':
 		opts = addOptions()
 		checkOptions(opts)
 		for i in range(0,1): # Sería el número de veces que se hará la petición (por ejemplo para los correos que deberan ser varias)
-			#search_engines = ['Bing', 'Baidu', 'Yahoo', 'DuckDuckGo', 'AOL', 'Ask', 'Exalead', 'Lycos', 'Ecosia']
-			search_engines = ['AOL']
-			for search_engine in search_engines:
-				url, query = makeRequest('romeo y julieta', search_engine)
-				print '%s: %s' % (search_engine, url)
-				reporte.busquedaReporte('romeo y julieta', query, search_engine)
+			search_engines = ['Bing', 'Baidu', 'Yahoo', 'DuckDuckGo', 'AOL', 'Ask', 'Exalead', 'Lycos', 'Ecosia']
+			#search_engines = ['Google']
+			search = 'romeo y julieta'
 			if opts.tor:  # Para pruebas de cambio de IP con tor
 				changeIP()
+			for search_engine in search_engines:
+				url, query = makeRequest(search, search_engine)
+				print '%s: %s' % (search_engine, url)  # Para debug
+				reporte.busquedaReporte(search, query, search_engine, opts.param)
 			sleep(5)  # Tor no permite asignar nuevas direcciones inmedaitamente
 
 	except Exception as e:
