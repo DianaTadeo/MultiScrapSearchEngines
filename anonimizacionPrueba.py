@@ -30,6 +30,8 @@ def addOptions():
 	parser.add_argument('-p','--params', action='store_true', dest='param', default=False, help='Resultados con parámetros GET.')
 	parser.add_argument('-b','--busqueda', dest='busqueda', default=None, help='Busqueda que se va a realizar entre comillas dobles.')
 	parser.add_argument('-t', '--tor', action='store_true', dest = 'tor', default = False, help = 'Las peticiones se hacen por medio de TOR.')
+	parser.add_argument('-f', '--formato', dest= 'formato', help ='El formato que toma para regresar el reporte "html", "xml" o "txt".')
+
 	#parser.add_argument('-a', '--agente', action='store_true', dest = 'agente', default = False, help = 'Se cambia el agente de usuario.')
 
 	opts = parser.parse_args()
@@ -124,7 +126,7 @@ if __name__ == '__main__':
 		print 'La búsqueda es: %s' % opts.busqueda
 		for i in range(0,1): # Sería el número de veces que se hará la petición (por ejemplo para los correos que deberan ser varias)
 			#search_engines = ['Bing', 'Baidu', 'Yahoo', 'DuckDuckGo', 'AOL', 'Ask', 'Exalead', 'Lycos', 'Ecosia']
-			search_engines = ['Lycos', 'Bing']
+			search_engines = ['Lycos', 'Bing', 'Ask']
 			search = opts.busqueda
 			printInfoIP = True
 			if opts.tor:  # Para pruebas de cambio de IP con tor
@@ -133,9 +135,9 @@ if __name__ == '__main__':
 				try:
 					url, query = makeRequest(search, search_engine, printInfoIP)
 					print '%s: %s' % (search_engine, url)  # Para debug
-					reporte.busquedaReporte(search, query, search_engine, opts.param)
+					reporte.busquedaReporte(search, query, search_engine, opts.param, opts.formato)
 				except Exception as e:
-					print 'Ocurrió un error para este motor.'
+					print e #'Ocurrió un error para este motor.'
 					continue
 				printInfoIP = False
 			sleep(5)  # Tor no permite asignar nuevas direcciones inmediatamente

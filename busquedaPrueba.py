@@ -22,7 +22,7 @@ USER_AGENT = {'User-Agent':'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKi
 def fetch_results(search_term, search_engine, number_results = 50, language_code = 'en'):
 	assert isinstance(search_term, str), 'Search term must be a string'
 	assert isinstance(number_results, int), 'Number of results must be an integer'
-	#escaped_search_term = search_term.replace(' ', '+')
+	escaped_search_term = search_term.replace(' ', '+')
 	#url a la que se hara el request... en el primer {} va a ir el query
 	####### Para cada motor de busqueda se formatea su url para hacer el get
 	if search_engine == 'Google': url = 'https://www.google.com/search?q={}&num={}'.format(search_term, number_results)
@@ -82,23 +82,23 @@ def buildQuery(search, web_search):
 			elif web_search == 'Lycos': search += '@hotmail.com or @yahoo.com or @gmail.com'
 			elif web_search == 'Baidu': search += 'hotmail.com'
 			else:	search += '*.com'
-		operacion=re.match(r'(.+):(.+)($| (.*))',search)
+		operacion=re.match(r'(.+):(.+)($|(.*))',search)
 		if operacion:#si es un operador del tipo ':'
 			if 'ip' in operacion.group(1):
-				query+=ip(operacion.group(2).strip(),operacion.group(3),web_search)
+				query+=ip(operacion.group(2).strip(),operacion.group(3).strip(),web_search)
 			elif 'filetype' in operacion.group(1):
-				query+=filetype(operacion.group(2).strip(),operacion.group(3),web_search)
+				query+=filetype(operacion.group(2).strip(),operacion.group(3).strip(),web_search)
 			elif 'site' in operacion.group(1):
-				query+=site(operacion.group(2).strip(),operacion.group(3),web_search)
+				query+=site(operacion.group(2).strip(),operacion.group(3).strip(),web_search)
 			elif 'mail' in operacion.group(1):
-				query+=mail(operacion.group(2).strip(),operacion.group(3),web_search)
+				query+=mail(operacion.group(2).strip(),operacion.group(3).strip(),web_search)
 		else:# si no es del tipo ':'
-			operacion2=re.match(r'(.*) [-|+](.*)',search)
+			operacion2=re.match(r'(.*)[-|+](.*)',search)
 			if operacion2: #Si es operador include o exclude
 				if '-' in search:
-					query+=exclude(operacion2.group(3), buildQuery(operacion2.group(1),web_search), web_search)
+					query+=exclude(operacion2.group(2).strip(), buildQuery(operacion2.group(1).strip(),web_search), web_search)
 				if '+' in search:
-					query+=include(operacion2.group(3), buildQuery(operacion2.group(1),web_search), web_search)
+					query+=include(operacion2.group(2).strip(), buildQuery(operacion2.group(1).strip(),web_search), web_search)
 				else:# Si entra pero no es ninguno sale error
 					print('Existe un error de entrada')
 			else:#Si no tiene ninguno de los operadores
@@ -136,7 +136,7 @@ def site(site,obj_search,web_search):
 	#q=site%3Astackoverflow.com+problem&oq=site%3Astackoverflow.com+problem
 	#q=site%3Astackoverflow.com&oq=site%3Astackoverflow.com
 	query=''
-	if search=='':
+	if obj_search=='':
 		if web_search in ['Google', 'DuckDuckGo', 'Bing', 'Yahoo', 'Baidu', 'Ask', 'Exalead', 'Ecosia']:   query+='site%3A' + site+'&oq=site%3A'+site
 		elif web_search == 'AOL': query+='site-'+site
 		elif web_search == 'Lycos': query+='site+'+site

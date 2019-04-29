@@ -2,7 +2,9 @@
 # -*- coding: utf-8 -*-
 
 import busquedaPrueba as busqueda
-
+from lxml import etree
+from lxml import objectify
+import os.path as path
 import bs4
 import re
 from urllib import unquote_plus
@@ -84,7 +86,7 @@ def getResults(search, links, search_engine, param):
 	else:
 		return returnLinks(links, search_engine, param)
 
-def busquedaReporte(search, query, search_engine, param):
+def busquedaReporte(search, query, search_engine, param, formato):
 	"""Función que realiza la busqueda de los enlaces, correos, domions asociados,
 	de acuerdo  a la búsqueda que se realiza en cada uno de los motores de búsqueda.
 	Recibe: search (búsqueda que se realiza)
@@ -125,6 +127,111 @@ def busquedaReporte(search, query, search_engine, param):
 	else:
 		print soup.prettify('utf-8')
 		exit(1)
+	listaResultados = getResults(search, links, search_engine, param)
+	if formato:
+		resultados = getResults(search, links, search_engine, param) # getResults devuelve la lista de los enlaces, correos, dominios encontrados
+		if formato.upper()=='XML':
+			make_FormatXML(resultados, search_engine, search)
+		elif formato.upper()=='HTML':
+			make_FormatHTML(resultados, search_engine, search)
+		elif formato.upper()=='TXT':
+			make_FormatTXT(resultados, search_engine, search)
+	else:
+		printLinks(getResults(search, links, search_engine, param))
 
-	# getResults(search, links, search_engine, param))  # getResults devuelve la lista de los enlaces, correos, dominios encontrados
-	printLinks(getResults(search, links, search_engine, param))  # se imprimen para mostrar los resultados
+def make_FormatXML(resultados, search_engine, search):
+	"""
+	Funcion que devuelve el reporte en un archivo XML
+	si la bandera --format se encuentra activada.
+	
+	resultados: Lista de resultados obtenidos de la busqueda.
+	search_engine: El buscador que se utilizo para la busqueda.
+	search: La busqueda realizada
+	"""
+	if path.exists('Busquedas.xml'):
+		#Si el archivo ya existe se obtiene la raiz, en este caso "data"
+		tree = objectify.parse('Busquedas.xml')
+		root = tree.getroot() #<data>
+		el	= root.find('main') #Se busca el elemento que contiene las busquedas <main>
+		result_search = etree.SubElement(el,'busqueda', name=''+search)
+		engine = etree.SubElement(result_search, search_engine)
+		#Guardamos los nuevos resultados
+		for res in resultados:
+			result = etree.SubElement(engine, 'resultado', res=res.strip())
+		outFile = open('Busquedas.xml', 'w')
+		tree.write(outFile)
+	else:
+		root = etree.Element('data')# se crea la raiz <data>
+		doc = etree.ElementTree(root) 
+		el = etree.SubElement(root,'main') #se a;ade a la raiz el elemento <main>
+		result_search=etree.SubElement(el, 'busqueda', name=search) #se agrega el elemento <busqueda>
+		engine = etree.SubElement(result_search, search_engine) #Se agega el elemento de etiqueta searc_engine
+		#Guardamos los resultados
+		for res in resultados:
+			result = etree.SubElement(engine, 'resultado', res=res.strip())
+		outFile = open('Busquedas.xml', 'w')
+		doc.write(outFile)
+		
+def make_FormatHTML(resultados, search_engine, search):
+	"""
+	Funcion que devuelve el reporte en un archivo HTML
+	si la bandera --format se encuentra activada.
+	
+	resultados: Lista de resultados obtenidos de la busqueda.
+	search_engine: El buscador que se utilizo para la busqueda.
+	search: La busqueda realizada
+	"""
+	if path.exists('Busquedas.html'):
+		tree = objectify.parse('Busquedas.html')
+		root = tree.getroot()
+		body_doc = root.find('body')
+		h2 = objectify.SubElement(body_doc, 'h2')
+		h2._setText('Busqueda: "'+ search+'"')
+		div = etree.SubElement(body_doc, 'div')
+		h3 = objectify.SubElement(div, 'h3')
+		h3._setText(''+search_engine)
+		for res in resultados:
+			result = objectify.SubElement(div, 'a', href=res)
+			result._setText(res)
+			br = etree.SubElement(div, 'br')
+		with open('Busquedas.html', 'w') as archivo:
+			tree.write(archivo)
+	else:
+		root = etree.Element('html')
+		doc = etree.ElementTree(root)
+		head_doc = etree.SubElement(root,'head')
+		title = etree.SubElement(head_doc,'title')
+		title.text = "Reporte de Busquedas"
+		body_doc = etree.SubElement(root,'body')
+		h1 =etree.SubElement(body_doc, 'h1')
+		h1.text = 'Reporte de Busquedas'
+		h2 = etree.SubElement(body_doc, 'h2')
+		h2.text = 'Busqueda: "'+ search+'"'
+		div = etree.SubElement(body_doc, 'h2')
+		h3 = etree.SubElement(div, 'h3')
+		h3.text = ''+search_engine
+		for res in resultados:
+			result = etree.SubElement(div, 'a', href=res)
+			result.text = res
+			br = etree.SubElement(div, 'br')
+		with open('Busquedas.html', 'w') as archivo:
+			doc.write(archivo)
+		
+def make_FormatTXT(resultados, search_engine, search):
+	"""
+	Funcion que devuelve el reporte en un archivo XML
+	si la bandera --format se encuentra activada.
+	
+	resultados: Lista de resultados obtenidos de la busqueda.
+	search_engine: El buscador que se utilizo para la busqueda.
+	search: La busqueda realizada
+	"""
+	with open('Busquedas.txt', 'a') as archivo:
+		archivo.write('\n--------------BUSQUEDA: "'+search+'"----------------\n')
+		archivo.write('\n\tWEB SEARCH: '+search_engine+'\n')
+		for res in resultados:
+			archivo.write(res+'\n')
+		archivo.close()
+		
+	
+	
