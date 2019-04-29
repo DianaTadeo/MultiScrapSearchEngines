@@ -82,7 +82,7 @@ def buildQuery(search, web_search):
 			elif web_search == 'Lycos': search += '@hotmail.com or @yahoo.com or @gmail.com'
 			elif web_search == 'Baidu': search += 'hotmail.com'
 			else:	search += '*.com'
-		operacion=re.match(r'(.+):(.+)($|(.*))',search)
+		operacion=re.match(r'(ip|filetype|site|mail):(.+) (.*)',search)
 		if operacion:#si es un operador del tipo ':'
 			if 'ip' in operacion.group(1):
 				query+=ip(operacion.group(2).strip(),operacion.group(3).strip(),web_search)
@@ -127,7 +127,7 @@ def filetype(tipo_archivo,obj_search,web_search):
 	query=''
 	if web_search in ['Google', 'Bing', 'Baidu', 'Ask', 'Exalead', 'Ecosia', 'Lycos']:	query += 'filetype%3A'+tipo_archivo+'+'+obj_search
 	elif web_search == 'DuckDuckGo':	query += obj_search+'+filetype%3A.'+tipo_archivo+' inurl:'+tipo_archivo.split()[0]
-	elif web_search == 'Yahoo': query+='inurl%3A".'+tipo_archivo+'"+'+obj_search
+	elif web_search == 'Yahoo': query+=obj_search+"&vf="+tipo_archivo
 	elif web_search == 'AOL': query+='filetype-'+tipo_archivo+'+'+obj_search
 
 	return query

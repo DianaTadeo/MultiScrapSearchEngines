@@ -10,8 +10,8 @@ from random import choice
 from time import sleep
 from sys import exit,stderr
 import argparse
-import reportePrueba as reporte
-import busquedaPrueba as busqueda
+import reporte
+import busqueda
 # /etc/tor/torrc -> ControlPort 9051 ->
 # NOTA: control requiere privilegios
 
@@ -32,8 +32,6 @@ def addOptions():
 	parser.add_argument('-t', '--tor', action='store_true', dest = 'tor', default = False, help = 'Las peticiones se hacen por medio de TOR.')
 	parser.add_argument('-f', '--formato', dest= 'formato', help ='El formato que toma para regresar el reporte "html", "xml" o "txt".')
 
-	#parser.add_argument('-a', '--agente', action='store_true', dest = 'agente', default = False, help = 'Se cambia el agente de usuario.')
-
 	opts = parser.parse_args()
 	return opts
 
@@ -42,14 +40,6 @@ def checkOptions(options):
 	if options.busqueda is None:
 		printError('No se indicó la búsqueda a realizar.', True)
 	pass
-
-def buildURL(server,protocol = 'http'):
-	"""Función que da formato de la URL.
-	Recibe: direccion(server)
-	Devuelve: URL con formato.
-	"""
-	url = '%s://%s' % (protocol,server)
-	return url
 
 def getInfoRequest(session, header):
 	"""

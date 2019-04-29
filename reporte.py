@@ -1,7 +1,7 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 
-import busquedaPrueba as busqueda
+import busqueda
 from lxml import etree
 from lxml import objectify
 import os.path as path
@@ -36,7 +36,7 @@ def getLinksFiletype(lista, search):
 	"""
 	operacion=re.match(r'(filetype):(.+)($| (.*))',search)
 	filetype = operacion.group(2).split()[0]
-	return [ lista[i] for i in range(0,len(lista)) if re.search(r'%s$' % filetype, lista[i]) ]
+	return [ lista[i] for i in range(0,len(lista)) if re.search(r'%s$' % filetype, lista[i], re.I) ]
 
 def getDomainAssociated(links,ip):
 	### Se verifica que la ip no aparezca en la URL (para hacerlo más preciso sería consultar también el título del enlace)
@@ -143,7 +143,7 @@ def make_FormatXML(resultados, search_engine, search):
 	"""
 	Funcion que devuelve el reporte en un archivo XML
 	si la bandera --format se encuentra activada.
-	
+
 	resultados: Lista de resultados obtenidos de la busqueda.
 	search_engine: El buscador que se utilizo para la busqueda.
 	search: La busqueda realizada
@@ -162,7 +162,7 @@ def make_FormatXML(resultados, search_engine, search):
 		tree.write(outFile)
 	else:
 		root = etree.Element('data')# se crea la raiz <data>
-		doc = etree.ElementTree(root) 
+		doc = etree.ElementTree(root)
 		el = etree.SubElement(root,'main') #se a;ade a la raiz el elemento <main>
 		result_search=etree.SubElement(el, 'busqueda', name=search) #se agrega el elemento <busqueda>
 		engine = etree.SubElement(result_search, search_engine) #Se agega el elemento de etiqueta searc_engine
@@ -171,12 +171,12 @@ def make_FormatXML(resultados, search_engine, search):
 			result = etree.SubElement(engine, 'resultado', res=res.strip())
 		outFile = open('Busquedas.xml', 'w')
 		doc.write(outFile)
-		
+
 def make_FormatHTML(resultados, search_engine, search):
 	"""
 	Funcion que devuelve el reporte en un archivo HTML
 	si la bandera --format se encuentra activada.
-	
+
 	resultados: Lista de resultados obtenidos de la busqueda.
 	search_engine: El buscador que se utilizo para la busqueda.
 	search: La busqueda realizada
@@ -216,12 +216,12 @@ def make_FormatHTML(resultados, search_engine, search):
 			br = etree.SubElement(div, 'br')
 		with open('Busquedas.html', 'w') as archivo:
 			doc.write(archivo)
-		
+
 def make_FormatTXT(resultados, search_engine, search):
 	"""
 	Funcion que devuelve el reporte en un archivo XML
 	si la bandera --format se encuentra activada.
-	
+
 	resultados: Lista de resultados obtenidos de la busqueda.
 	search_engine: El buscador que se utilizo para la busqueda.
 	search: La busqueda realizada
@@ -232,6 +232,3 @@ def make_FormatTXT(resultados, search_engine, search):
 		for res in resultados:
 			archivo.write(res+'\n')
 		archivo.close()
-		
-	
-	
