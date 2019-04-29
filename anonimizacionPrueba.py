@@ -28,7 +28,7 @@ def addOptions():
 	"""
 	parser = argparse.ArgumentParser()
 	parser.add_argument('-p','--params', action='store_true', dest='param', default=False, help='Resultados con parámetros GET.')
-	# parser.add_argument('-m','--motor', dest='motor', default=None, help='Motor de búsqueda.')
+	parser.add_argument('-b','--busqueda', dest='busqueda', default=None, help='Busqueda que se va a realizar entre comillas dobles.')
 	parser.add_argument('-t', '--tor', action='store_true', dest = 'tor', default = False, help = 'Las peticiones se hacen por medio de TOR.')
 	#parser.add_argument('-a', '--agente', action='store_true', dest = 'agente', default = False, help = 'Se cambia el agente de usuario.')
 
@@ -37,8 +37,8 @@ def addOptions():
 
 def checkOptions(options):
 	"""Función que verifica el estado de ciertas opciones para poder ejecutar el script"""
-	#if options.motor is None:
-	#    printError('Se debe indicar el motor de búsqueda.', True)
+	if options.busqueda is None:
+		printError('No se indicó la búsqueda a realizar.', True)
 	pass
 
 def buildURL(server,protocol = 'http'):
@@ -75,7 +75,7 @@ def changeIP():
 		controller.authenticate()
 		controller.signal(Signal.NEWNYM)
 
-def makeRequest(search, search_engine):
+def makeRequest(search, search_engine, printInfoIP):
 	"""Función que realiza las peticiones anónimas.
 	Recibe: motor en donde realiza la búsqueda
 	Si --tor es True se realiza la petición a través de TOR mediante los proxies y session()
@@ -96,7 +96,7 @@ def makeRequest(search, search_engine):
 		session.proxies = {}
 		session.proxies['http'] = 'socks5://localhost:9050'  # Proxy http y https para realizar la petición mediante TOR
 		session.proxies['https'] = 'socks5://localhost:9050'
-		url = busqueda.search_results(busqueda.buildQuery(search, search_engine), search_engine)
+		url = busqueda.fetch_results(busqueda.buildQuery(search, search_engine), search_engine)
 		#---------Session prepare_request--------------
 		response = requests.Request('GET', url, headers=header)
 		prepared = session.prepare_request(response)
@@ -110,7 +110,7 @@ def makeRequest(search, search_engine):
 		#response =requests.get(query, headers=header)
 		#response.raise_for_status()
 		#print response.text.encode('utf-8')
-		getInfoRequest(session, header)
+		if printInfoIP:	getInfoRequest(session, header)
 		return url, resp.text.encode('utf-8')
 		#print query
 
@@ -121,17 +121,24 @@ if __name__ == '__main__':
 	try:
 		opts = addOptions()
 		checkOptions(opts)
+		print 'La búsqueda es: %s' % opts.busqueda
 		for i in range(0,1): # Sería el número de veces que se hará la petición (por ejemplo para los correos que deberan ser varias)
-			search_engines = ['Bing', 'Baidu', 'Yahoo', 'DuckDuckGo', 'AOL', 'Ask', 'Exalead', 'Lycos', 'Ecosia']
-			#search_engines = ['Google']
-			search = 'romeo y julieta'
+			#search_engines = ['Bing', 'Baidu', 'Yahoo', 'DuckDuckGo', 'AOL', 'Ask', 'Exalead', 'Lycos', 'Ecosia']
+			search_engines = ['Lycos', 'Bing']
+			search = opts.busqueda
+			printInfoIP = True
 			if opts.tor:  # Para pruebas de cambio de IP con tor
 				changeIP()
 			for search_engine in search_engines:
-				url, query = makeRequest(search, search_engine)
-				print '%s: %s' % (search_engine, url)  # Para debug
-				reporte.busquedaReporte(search, query, search_engine, opts.param)
-			sleep(5)  # Tor no permite asignar nuevas direcciones inmedaitamente
+				try:
+					url, query = makeRequest(search, search_engine, printInfoIP)
+					print '%s: %s' % (search_engine, url)  # Para debug
+					reporte.busquedaReporte(search, query, search_engine, opts.param)
+				except Exception as e:
+					print 'Ocurrió un error para este motor.'
+					continue
+				printInfoIP = False
+			sleep(5)  # Tor no permite asignar nuevas direcciones inmediatamente
 
 	except Exception as e:
 		printError('Ocurrio un error inesperado')
