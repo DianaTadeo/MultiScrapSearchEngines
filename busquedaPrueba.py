@@ -29,7 +29,7 @@ def fetch_results(search_term, search_engine, number_results = 50, language_code
 	elif search_engine == 'DuckDuckGo': url = 'https://www.duckduckgo.com/html/?q={}'.format(search_term)
 	elif search_engine == 'Bing': url = 'https://www.bing.com/search?q={}&count={}'.format(search_term, number_results)
 	elif search_engine == 'Yahoo': url = 'https://search.yahoo.com/search?p={}&n={}'.format(search_term, number_results)
-	elif search_engine == 'Baidu': url = 'https://www.baidu.com/s?ie=utf-8&f=8&rsv_bp=1&tn=baidu&wd={}&rqlang={}&rsv_enter=1&rn={}'.format(search_term, language_code,number_results)
+	elif search_engine == 'Baidu': url = 'https://www.baidu.com/s?ie=utf-8&f=8&rsv_bp=1&tn=baidu&wd={}&rqlang=all&rsv_enter=1&rn={}'.format(search_term, number_results)
 	elif search_engine == 'Ask': url = 'https://www.ask.com/web?q={}'.format(search_term)
 	elif search_engine == 'AOL': url = 'https://search.aol.com/aol/search?q={}&pz={}'.format(search_term,number_results)
 	elif search_engine == 'Lycos': url = 'http://search.lycos.es/web/?q={}&OrigLycosTld=es&keyvol=1'.format(search_term)
@@ -73,7 +73,16 @@ def buildQuery(search, web_search):
 	elif res_OrL!='NO':#Si hay OR se llama recursivamente buildQuery para el lado derecho y el izquierdo
 		query+=op_or(buildQuery(res_OrL,web_search),buildQuery(res_OrR,web_search),web_search)
 	else: #Si no hay ni AND ni OR prosigue revisando operadores
-		operacion=re.match(r'(.+):(.+) (.*)',search)
+		#operacion=re.match(r'(.+):(.+)( |$)(.*)',search)
+		if search == 'mail:':
+			if web_search in ['Yahoo', 'Ecosia']:	search += 'mail.com'
+			elif web_search == 'DuckDuckGo': search += '\"yahoo.com\" or \"hotmail.com\" or \"gmail.com\"'
+			elif web_search in ['AOL', 'Ask']: search += '@gmail.com or @hotmail.com or @yahoo.com or @msn.com'
+			elif web_search == 'Exalead': search += 'gmail.com'
+			elif web_search == 'Lycos': search += '@hotmail.com or @yahoo.com or @gmail.com'
+			elif web_search == 'Baidu': search += 'hotmail.com'
+			else:	search += '*.com'
+		operacion=re.match(r'(.+):(.+)($| (.*))',search)
 		if operacion:#si es un operador del tipo ':'
 			if 'ip' in operacion.group(1):
 				query+=ip(operacion.group(2).strip(),operacion.group(3),web_search)
@@ -117,7 +126,7 @@ def filetype(tipo_archivo,obj_search,web_search):
 	#p=inurl%3A".pdf"+algo
 	query=''
 	if web_search in ['Google', 'Bing', 'Baidu', 'Ask', 'Exalead', 'Ecosia', 'Lycos']:	query += 'filetype%3A'+tipo_archivo+'+'+obj_search
-	elif web_search == 'DuckDuckGo':	query += obj_search+'+filetype%3A'+tipo_archivo+' inurl:'+tipo_archivo.split()[0]
+	elif web_search == 'DuckDuckGo':	query += obj_search+'+filetype%3A.'+tipo_archivo+' inurl:'+tipo_archivo.split()[0]
 	elif web_search == 'Yahoo': query+='inurl%3A".'+tipo_archivo+'"+'+obj_search
 	elif web_search == 'AOL': query+='filetype-'+tipo_archivo+'+'+obj_search
 
@@ -141,13 +150,19 @@ def mail(mail,obj_search,web_search):
 	#q=email%3Agmail.com+hi&oq=email%3Agmail.com+hi&
 	query=''
 	if obj_search=='':
-		if web_search in ['Google', 'DuckDuckGo', 'Bing', 'Baidu', 'Ecosia', 'Lycos']:   query+='email%3A'+mail+'&oq=email%3A'+mail
-		elif web_search in ['Yahoo','Ask']:query+='mail%3A'+mail
-		elif web_search == 'AOL': query+='mail-'+mail
+		if web_search == 'Google':   query+='inurl%3A\"email.xls\"+intext%3A%40'+mail # inurl%3A"email.xls"+intext%3A%40gmail.com
+		elif web_search == 'Baidu': query+='filteype%3Axls intext%3A%40'+mail
+		elif web_search == 'DuckDuckGo': query+='inurl%3Axls+\"'+mail+'\"' # inurl%3Axls+"gmail.com"
+		elif web_search in ['Ecosia', 'Ask', 'Bing', 'Lycos']: query+='filetype%3Axls+intext%3A%40'+mail # filetype%3Axls+intext%3A%40gmail.com
+		elif web_search in ['Yahoo','AOL']:query+='filetype%3Axls+%40'+mail # filetype:xls @gmail.com
+		elif web_search == 'Exalead': query+='inurl%3Axls+\"%40'+mail+'\"'
 	else:
-		if web_search in ['Google', 'DuckDuckGo', 'Bing', 'Baidu', 'Ecosia', 'Lycos']:   query+='email%3A'+mail+'+'+obj_search
-		elif web_search in ['Yahoo','Ask']: query+='mail%3A'+mail+'+'+obj_search
-		elif web_search == 'AOL': query+='mail-'+mail+'+'+obj_search
+		if web_search == 'Google':   query+='inurl%3A\"email.xls\"+intext%3A%40'+mail+obj_search
+		elif web_search == 'Baidu': query+='filteype%3Axls intext%3A%40'+mail+' '+obj_search
+		elif web_search == 'DuckDuckGo': query+='inurl%3Axls+\"'+mail+'\"'+obj_search # inurl%3Axls+"gmail.com"
+		elif web_search in ['Ecosia', 'Ask', 'Bing', 'Lycos']: query+='filetype%3Axls+intext%3A%40'+mail+obj_search # filetype%3Axls+intext%3A%40gmail.com
+		elif web_search in ['Yahoo', 'AOL']:query+='filetype%3Axls+%40'+mail+'+'+obj_search # filetype:xls @gmail.com
+		elif web_search == 'Exalead': query+='inurl%3Axls+\"$40'+mail+'\"'+obj_search
 	return query
 
 def exclude(palabra,obj_search,web_search):
