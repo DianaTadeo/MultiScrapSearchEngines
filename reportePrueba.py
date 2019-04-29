@@ -22,7 +22,7 @@ def getLinks(lista):
 	Recibe: lista (lista que sera analizada)
 	Devuelve: lista con los enlaces finales
 	"""
-	# checar notLink -> [&]q
+	# checar notLink -> []
 	notLink = "^/|acl(ic|)k|translator|translate|fwlink|webcache|.*\.google|^[^https]|[&]q|3ds|exalead|askmediagroup|(about|help)\.ask"
 	return list(set(filter(None, [ None if lista[i] is not None and (lista[i] is '#' or re.search(r'%s' % notLink, lista[i]) ) else lista[i] for i in range(0,len(lista)) ])))
 
@@ -52,15 +52,15 @@ def getMailAccounts(texts, domain):
 			domain (string que indica el dominio del que se buscan las cuentas de correo)
 	Devuelve: lista con los correos obtenidos
 	"""
-	domain_search = '.*' if domain.split(':')[1] is '' else domain.split(':')[1]
-	return list(set([ re.search(r'[^.0-9_<>-][a-zA-z._0-9]+[^_.]@%s' % domain_search,mail_account).group(0) for text in texts for mail_account in text.split() if re.match(r'.+@%s' % domain_search, mail_account) ]))
+	domain_search = '[a-zA-Z.]+' if domain.split(':')[1] is '' else domain.split(':')[1].split(' ')[0]
+	return list(set([ re.search(r'[a-zA-z._0-9]+[^_.]@%s' % domain_search,mail_account).group(0) for text in texts for mail_account in text.split() if re.match(r'.+@%s' % domain_search, mail_account) ]))
 
-def returnLinks(links, param = False):
+def returnLinks(links, search_engine = '', param = False):
 	"""Función que devuelve las URL con los parámetros GET de acuerdo al valor de param (True o False).
 	Recibe: links (lists de enlaces), param (bool que indica si se incluyen o no)
 	Devuelve: lista con parametros o sin parámetros GET
 	"""
-	if not param:	links = list(set([ link[:link.rfind('?')] if re.search(r'/.*\?', link) else link for link in links ]))
+	if not param and search_engine == '':	links = list(set([ link[:link.rfind('?')] if re.search(r'/.*\?', link) else link for link in links ]))
 	return links
 
 def printLinks(links):
@@ -74,7 +74,7 @@ def getResults(search, links, search_engine, param):
 			param (bool que indica si se muestran los parámetros GET)
 	Devuelve: lista con los enlaces, dominios o correos de acuerdo a search"""
 	if 'filetype:' in search:
-		if search_engine == 'Baidu':	return returnLinks(links, param)
+		if search_engine == 'Baidu':	return returnLinks(links, search_engine, param)
 		else:	return returnLinks(getLinksFiletype(links, search[search.find('filetype:'):]), param)
 	elif 'ip:' in search:
 		if search_engine in ['Bing', 'DuckDuckGo', 'Yahoo', 'AOL']:
@@ -82,7 +82,7 @@ def getResults(search, links, search_engine, param):
 	elif 'mail:' in search:
 		return getMailAccounts(links, search[search.find('mail:'):])
 	else:
-		return returnLinks(links, param)
+		return returnLinks(links, search_engine, param)
 
 def busquedaReporte(search, query, search_engine, param):
 	"""Función que realiza la busqueda de los enlaces, correos, domions asociados,
@@ -94,7 +94,6 @@ def busquedaReporte(search, query, search_engine, param):
 	Devuelve: lista con los resultados
 	"""
 	soup = beautifulSoup(query)
-
 	if search_engine in ['Google', 'Bing', 'DuckDuckGo', 'Ask', 'Exalead']:
 		if 'mail:' in search:
 			if search_engine == 'Google':	links = list(set([ href.text for href in soup.find_all('span', class_="st") ]))
@@ -114,7 +113,6 @@ def busquedaReporte(search, query, search_engine, param):
 	elif search_engine == 'Baidu':
 		if 'mail:' in search: links = [ href.text for href in soup.findAll('div', {'class': 'c-abstract'}) ]
 		else:	links = getLinks([ href.find('a')['href'] for href in soup.findAll('div', {'class': 'c-container'}) ])  # baidu
-
 	elif search_engine == 'Lycos':
 		if 'mail:' in search: links = list(set([ href.text for href in soup.find_all('span', class_="result-description") ]))
 		else:
@@ -124,7 +122,6 @@ def busquedaReporte(search, query, search_engine, param):
 	elif search_engine == 'Ecosia':
 		if 'mail:' in search: links = list(set([ href.text for href in soup.find_all('p', class_="result-snippet") ]))
 		else:	links = list(set([ href.get('href') for href in soup.find_all('a', class_="result-url js-result-url") ]))
-
 	else:
 		print soup.prettify('utf-8')
 		exit(1)
