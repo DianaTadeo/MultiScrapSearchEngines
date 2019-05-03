@@ -160,7 +160,7 @@ def make_FormatXML(resultados, search_engine, search):
 		engine = etree.SubElement(result_search, search_engine)
 		#Guardamos los nuevos resultados
 		for res in resultados:
-			result = etree.SubElement(engine, 'resultado', res=res.strip())
+			result = etree.SubElement(engine, 'resultado', res=res.decode('utf-8').strip())
 		outFile = open('Busquedas.xml', 'w')
 		tree.write(outFile)
 	else:
@@ -171,7 +171,7 @@ def make_FormatXML(resultados, search_engine, search):
 		engine = etree.SubElement(result_search, search_engine) #Se agega el elemento de etiqueta searc_engine
 		#Guardamos los resultados
 		for res in resultados:
-			result = etree.SubElement(engine, 'resultado', res=res.strip())
+			result = etree.SubElement(engine, 'resultado', res=res.decode('utf-8').strip())
 		outFile = open('Busquedas.xml', 'w')
 		doc.write(outFile)
 
@@ -195,7 +195,7 @@ def make_FormatHTML(resultados, search_engine, search):
 		h3._setText(''+search_engine)
 		for res in resultados:
 			result = objectify.SubElement(div, 'a', href=res)
-			result._setText(res)
+			result._setText(res.decode('utf-8'))
 			br = etree.SubElement(div, 'br')
 		with open('Busquedas.html', 'w') as archivo:
 			tree.write(archivo)
@@ -215,7 +215,7 @@ def make_FormatHTML(resultados, search_engine, search):
 		h3.text = ''+search_engine
 		for res in resultados:
 			result = etree.SubElement(div, 'a', href=res)
-			result.text = res
+			result.text = res.decode('utf-8')
 			br = etree.SubElement(div, 'br')
 		with open('Busquedas.html', 'w') as archivo:
 			doc.write(archivo)
