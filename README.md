@@ -20,6 +20,10 @@ Los módulos desarrollados fueron: __anonimizacion.py, busqueda.py y reporte.py_
 
 Una vez que se han instalado y configurado las dependencias adicionales, el script (módulo principal) que debe ser ejecutado para obtener los resultados es: __anonimizacion.py__
 
+__Uso:__
+```bash
+sudo python anonimizacion.py -b "<terminos_busqueda>" [-n <num_entero>] [-p] [-f <txt|html|xml>]
+```
 ### anonimizacion.py
 En este módulo se leen los argumentos de ejecución del script que indican:
 
