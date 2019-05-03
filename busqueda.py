@@ -69,7 +69,7 @@ def buildQuery(search, web_search):
 			elif web_search == 'Lycos': search += '@hotmail.com or @yahoo.com or @gmail.com'
 			elif web_search == 'Baidu': search += 'hotmail.com'
 			else:	search += '*.com'
-		operacion=re.match(r'(ip|filetype|site|mail):(.+) (.*)',search)
+		operacion=re.match(r'(ip|filetype|site|mail):(.+)( |)(.*)',search)
 		if operacion:#si es un operador del tipo ':'
 			if 'ip' in operacion.group(1):
 				query+=ip(operacion.group(2).strip(),operacion.group(3).strip(),web_search)
@@ -103,11 +103,11 @@ def ip(ip,obj_search,web_search):
 	Devuelve: query (búsqueda del operador ip con formato para su motor de búsqueda correspondiente)"""
 	#q=ip%3A192.168.190.10+local&oq=ip%3A192.168.190.10+local
 	query=''
-	if search=='':
-		if web_search in ['Google', 'DuckDuckGo', 'Bing', 'Yahoo', 'Baidu', 'Ask', 'Exalead', 'Ecosia']:   query+='ip%3A'+ip+'&oq=ip%'+ip
+	if obj_search=='':
+		if web_search in ['Google', 'DuckDuckGo', 'Bing', 'Yahoo', 'Baidu', 'Ask', 'Exalead', 'Ecosia', 'AOL']:   query+='ip%3A'+ip+'&oq=ip%'+ip
 		elif web_search == 'Lycos': query+='ip+'+ip
 	else:
-		if web_search in ['Google', 'DuckDuckGo', 'Bing', 'Yahoo', 'Baidu', 'Ask', 'Exalead', 'Ecosia']:   query+='ip%3A'+ip+'+'+obj_search
+		if web_search in ['Google', 'DuckDuckGo', 'Bing', 'Yahoo', 'Baidu', 'Ask', 'Exalead', 'Ecosia', 'AOL']:   query+='ip%3A'+ip+'+'+obj_search
 		elif web_search == 'Lycos': query+='ip+'+ip+'+'+obj_search
 	return query
 

@@ -102,7 +102,7 @@ def makeRequest(search, search_engine, printInfoIP, number_results = 50):
 
 		if printInfoIP:	getInfoRequest(session, header)
 		if 'class="g-recaptcha"' in resp.text.encode('utf-8'):
-			print "HAY CAPTHCA en %s" % search_engine
+			print "HAY CAPTCHA en %s" % search_engine
 		if 'class="g-recaptcha"' not in resp.text.encode('utf-8') and resp.status_code == 200:
 			return url, resp.text.encode('utf-8')
 		else:
