@@ -1,25 +1,16 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
-# Motores de búsqueda:
-# 1. Google : https://google.com/search?q=
-# 2. Bing : https://www.bing.com/search?q=
-# 3. Yahoo
-# 4. Ask.com
-# 5. AOL.com
-# 6. Baidu : https://www.baidu.com/s?ie=utf-8&f=8&rsv_bp=1&tn=baidu&wd=
-# 7. DuckDuckGo : https://duckduckgo.com/html/?q=
-# 8. Gibiru
-# 9. Gigablast
-#10. Exalead
+
 import requests
 import re
 from bs4 import BeautifulSoup
 
-#user agent de ejemplo
-USER_AGENT = {'User-Agent':'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/61.0.3163.100 Safari/537.36'}
-
-
 def fetch_results(search_term, search_engine, number_results = 50, language_code = 'en'):
+	"""Función que obtiene el resultado de la url correspondiente a cada motor de búsqueda con los términos a buscar.
+	Recibe: search_term (términos de búsqueda), searc_engine (motor de búsqueda), number_results (número de resultados a buscar),
+			language_code (idioma en el que se realizará la búsqueda)
+	Devuelve: url (url con el formato de cada motor de búsqueda)
+	"""
 	assert isinstance(search_term, str), 'Search term must be a string'
 	assert isinstance(number_results, int), 'Number of results must be an integer'
 	escaped_search_term = search_term.replace(' ', '+')
@@ -36,7 +27,7 @@ def fetch_results(search_term, search_engine, number_results = 50, language_code
 	elif search_engine == 'Ecosia': url = 'https://www.ecosia.org/search?p={}&q={}'.format(number_results, search_term)
 	elif search_engine == 'Exalead': url = 'https://www.exalead.com/search/web/results/?q={}&elements_per_page=10&start_index={}0'.format(search_term,number_results)
 
-	return url #search_term, response.text.encode('utf-8')#aun no resuelvo bien esto de la codificacion, pero con este hay salida
+	return url
 
 def findAO(search,op):
 	"""
@@ -70,7 +61,6 @@ def buildQuery(search, web_search):
 	elif res_OrL!='NO':#Si hay OR se llama recursivamente buildQuery para el lado derecho y el izquierdo
 		query+=op_or(buildQuery(res_OrL,web_search),buildQuery(res_OrR,web_search),web_search)
 	else: #Si no hay ni AND ni OR prosigue revisando operadores
-		#operacion=re.match(r'(.+):(.+)( |$)(.*)',search)
 		if search == 'mail:':
 			if web_search in ['Yahoo', 'Ecosia']:	search += 'mail.com'
 			elif web_search == 'DuckDuckGo': search += '\"yahoo.com\" or \"hotmail.com\" or \"gmail.com\"'
@@ -99,16 +89,18 @@ def buildQuery(search, web_search):
 				else:# Si entra pero no es ninguno sale error
 					print('Existe un error de entrada')
 			else:#Si no tiene ninguno de los operadores
-				operacion3=re.match(r'"(.*)"',search)
+				operacion3=re.match(r'\'(.*)\'',search)
 				if operacion3:
-					return '"'+operacion3.group(1)+'"'
+					return '\''+operacion3.group(1)+'\''
 				else:
 					return re.sub(' ','+',search) #se manda una busqueda normal del tipo 'departamento+barato+cdmx'
-	#print 'SAlida: %s' % query
 	return query
 
 
 def ip(ip,obj_search,web_search):
+	"""Función que da formato a la búsqueda cuando se busca con el operador ip.
+	Recibe: ip (dirección ip a buscar), obj_search (términos adicionales de búsqueda), web_search (motor de búsqueda)
+	Devuelve: query (búsqueda del operador ip con formato para su motor de búsqueda correspondiente)"""
 	#q=ip%3A192.168.190.10+local&oq=ip%3A192.168.190.10+local
 	query=''
 	if search=='':
@@ -120,16 +112,21 @@ def ip(ip,obj_search,web_search):
 	return query
 
 def filetype(tipo_archivo,obj_search,web_search):
+	"""Función que da formato a la búsqueda cuando se busca con el operador filetype.
+	Recibe: tipo_archivo (tipo de archivo a buscar), obj_search (términos adicionales de búsqueda), web_search (motor de búsqueda)
+	Devuelve: query (búsqueda del operador filetype con formato para su motor de búsqueda correspondiente)"""
 	#p=inurl%3A".pdf"+algo
 	query=''
-	if web_search in ['Google', 'Bing', 'Baidu', 'Ask', 'Exalead', 'Ecosia', 'Lycos']:	query += 'filetype%3A'+tipo_archivo+'+'+obj_search
+	if web_search in ['Google', 'Bing', 'Baidu', 'Ask', 'Exalead', 'Ecosia', 'Lycos', 'Yahoo']:	query += 'filetype%3A'+tipo_archivo+'+'+obj_search
 	elif web_search == 'DuckDuckGo':	query += obj_search+'+filetype%3A.'+tipo_archivo+' inurl:'+tipo_archivo.split()[0]
-	elif web_search == 'Yahoo': query+=obj_search+"&vf="+tipo_archivo
 	elif web_search == 'AOL': query+='filetype-'+tipo_archivo+'+'+obj_search
 
 	return query
 
 def site(site,obj_search,web_search):
+	"""Función que da formato a la búsqueda cuando se busca con el operador site.
+	Recibe: site (sitio donde se busca), obj_search (términos adicionales de búsqueda), web_search (motor de búsqueda)
+	Devuelve: query (búsqueda del operador site con formato para su motor de búsqueda correspondiente)"""
 	#q=site%3Astackoverflow.com+problem&oq=site%3Astackoverflow.com+problem
 	#q=site%3Astackoverflow.com&oq=site%3Astackoverflow.com
 	query=''
@@ -144,6 +141,9 @@ def site(site,obj_search,web_search):
 	return query
 
 def mail(mail,obj_search,web_search):
+	"""Función que da formato a la búsqueda cuando se busca con el operador mail.
+	Recibe: mail (dominio a buscar), obj_search (términos adicionales de búsqueda), web_search (motor de búsqueda)
+	Devuelve: query (búsqueda del operador mail con formato para su motor de búsqueda correspondiente)"""
 	#q=email%3Agmail.com+hi&oq=email%3Agmail.com+hi&
 	query=''
 	if obj_search=='':
@@ -163,6 +163,9 @@ def mail(mail,obj_search,web_search):
 	return query
 
 def exclude(palabra,obj_search,web_search):
+	"""Función que da formato a la búsqueda cuando se busca con el operador -
+	Recibe: palabra (palabra que se excluye al buscar), obj_search (términos adicionales de búsqueda), web_search (motor de búsqueda)
+	Devuelve: query (búsqueda del operador - con formato para su motor de búsqueda correspondiente)"""
 	#q=casa+-jardin&oq=casa+-jardin
 	query=''
 	if obj_search=='':
@@ -174,6 +177,9 @@ def exclude(palabra,obj_search,web_search):
 	return query
 
 def include(palabra,obj_search,web_search):
+	"""Función que da formato a la búsqueda cuando se busca con el operador +
+	Recibe: palabra (palabra que se incluye al buscar), obj_search (términos adicionales de búsqueda), web_search (motor de búsqueda)
+	Devuelve: query (búsqueda del operador + con formato para su motor de búsqueda correspondiente)"""
 	#q=casa+-jardin&oq=casa+-jardin
 	query=''
 	if obj_search=='':
@@ -185,6 +191,9 @@ def include(palabra,obj_search,web_search):
 	return query
 
 def op_and(objL_search,objR_search,web_search):
+	"""Función que da formato a la búsqueda cuando se busca con el operador and
+	Recibe: objL_search (palabra que va antes de AND), objR_search (palabra que va después de AND), web_search (motor de búsqueda)
+	Devuelve: query (búsqueda del operador AND con formato para su motor de búsqueda correspondiente)"""
 	#q=casa+AND+blanca+AND+jardin
 	query=''
 	if web_search in ['Google', 'DuckDuckGo', 'Bing', 'Yahoo', 'Ask', 'Ecosia','Exalead', 'Lycos']:    query += objL_search+'+AND+'+ objR_search
@@ -193,6 +202,9 @@ def op_and(objL_search,objR_search,web_search):
 	return query
 
 def op_or(objL_search,objR_search,web_search):
+	"""Función que da formato a la búsqueda cuando se busca con el operador or
+	Recibe: objL_search (palabra que va antes de OR), objR_search (palabra que va después de OR), web_search (motor de búsqueda)
+	Devuelve: query (búsqueda del operador OR con formato para su motor de búsqueda correspondiente)"""
 	#q=casa+AND+blanca+AND+jardin
 	query=''
 	if web_search in ['Google', 'DuckDuckGo', 'Bing', 'Yahoo', 'Ask','Ecosia']:    query += objL_search+'+OR+'+ objR_search

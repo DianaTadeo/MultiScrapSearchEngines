@@ -86,40 +86,38 @@ def makeRequest(search, search_engine, printInfoIP, number_results = 50):
 	]
 	url = busqueda.fetch_results(busqueda.buildQuery(search, search_engine), search_engine, number_results)
 	while True:
-	#	try:
-			session = Session()
-			header = {'User-agent':choice(user_agent)}  # Valor que se agrega al diccionario para cambiar el agente
-			session.proxies = {}
-			if search_engine is 'Google':
-				session.proxies['http'] = ''  # Proxy para petición a Google, no se hace petición anónima
-				session.proxies['https'] = ''
-			else:
-				session.proxies['http'] = 'socks5://localhost:9050'  # Proxy http y https para realizar la petición mediante TOR
-				session.proxies['https'] = 'socks5://localhost:9050'
-			#---------Session prepare_request--------------
-			response = requests.Request('GET', url, headers=header)
-			prepared = session.prepare_request(response)
-			resp = session.send(prepared, timeout = 5)
+		session = Session()
+		header = {'User-agent':choice(user_agent)}  # Valor que se agrega al diccionario para cambiar el agente
+		session.proxies = {}
+		if search_engine is 'Google':
+			session.proxies['http'] = ''  # Proxy para petición a Google, no se hace petición anónima
+			session.proxies['https'] = ''
+		else:
+			session.proxies['http'] = 'socks5://localhost:9050'  # Proxy http y https para realizar la petición mediante TOR
+			session.proxies['https'] = 'socks5://localhost:9050'
+		#---------Session prepare_request--------------
+		response = requests.Request('GET', url, headers=header)
+		prepared = session.prepare_request(response)
+		resp = session.send(prepared, timeout = 15)
 
-			if printInfoIP:	getInfoRequest(session, header)
-			if 'class="recaptcha_challenge_field"' not in resp.text.encode('utf-8') and resp.status_code == 200:
-				return url, resp.text.encode('utf-8')
-			else:
-				changeIP()
-				getInfoRequest(session, header)
-				print "Se cambió IP"
-	#	except ConnectionError as e:
-	#		print e
-	#		printError('Error en la conexion.',True)
+		if printInfoIP:	getInfoRequest(session, header)
+		if 'class="g-recaptcha"' in resp.text.encode('utf-8'):
+			print "HAY CAPTHCA en %s" % search_engine
+		if 'class="g-recaptcha"' not in resp.text.encode('utf-8') and resp.status_code == 200:
+			return url, resp.text.encode('utf-8')
+		else:
+			changeIP()
+			getInfoRequest(session, header)
+			print "Se cambió IP"
+			sleep(5)
 
 if __name__ == '__main__':
 	try:
 		opts = addOptions()
 		checkOptions(opts)
 		print 'La búsqueda es: %s' % opts.busqueda
-#		for i in range(0,1): # Sería el número de veces que se hará la petición (por ejemplo para los correos que deberan ser varias)
-		search_engines = ['Bing', 'Baidu', 'Yahoo', 'DuckDuckGo', 'AOL', 'Ask', 'Exalead', 'Lycos', 'Ecosia', 'Google']
-		#search_engines = ['Google']
+		search_engines = ['Ecosia', 'Bing', 'Baidu', 'Yahoo', 'DuckDuckGo', 'AOL', 'Ask', 'Exalead', 'Lycos', 'Google']
+		#search_engines = ['Lycos', 'Yahoo']
 		search = opts.busqueda
 		printInfoIP = True
 		if opts.tor:  # Para pruebas de cambio de IP con tor
@@ -143,7 +141,6 @@ if __name__ == '__main__':
 				print e #'Ocurrió un error para este motor.'
 				continue
 			printInfoIP = False
-#			sleep(5)  # Tor no permite asignar nuevas direcciones inmediatamente
 
 	except Exception as e:
 		printError('Ocurrio un error inesperado')

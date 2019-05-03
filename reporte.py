@@ -62,10 +62,11 @@ def returnLinks(links, search_engine = '', param = False):
 	Recibe: links (lists de enlaces), param (bool que indica si se incluyen o no)
 	Devuelve: lista con parametros o sin parámetros GET
 	"""
-	if not param and search_engine == '':	links = list(set([ link[:link.rfind('?')] if re.search(r'/.*\?', link) else link for link in links ]))
+	if not param and search_engine is not 'Baidu':	links = list(set([ link[:link.rfind('?')] if re.search(r'/.*\?', link) else link for link in links ]))
 	return links
 
 def printLinks(links):
+	"""Función que muestra los enlaces obtenidos en la salida estándar."""
 	for link in links:
 		print link
 
