@@ -85,6 +85,7 @@ def makeRequest(search, search_engine, printInfoIP, number_results = 50):
 		'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/75.0.3739.0 Safari/537.36 Edge/75.0.109.0'  # Microsoft Edge
 	]
 	url = busqueda.fetch_results(busqueda.buildQuery(search, search_engine), search_engine, number_results)
+	print url
 	while True:
 		session = Session()
 		header = {'User-agent':choice(user_agent)}  # Valor que se agrega al diccionario para cambiar el agente

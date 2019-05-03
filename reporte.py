@@ -80,7 +80,7 @@ def getResults(search, links, search_engine, param):
 		if search_engine == 'Baidu':	return returnLinks(links, search_engine, param)
 		else:	return returnLinks(getLinksFiletype(links, search[search.find('filetype:'):]), param)
 	elif 'ip:' in search:
-		if search_engine in ['Bing', 'DuckDuckGo', 'Yahoo', 'AOL']:
+		if search_engine in ['Bing', 'DuckDuckGo', 'Yahoo', 'AOL', 'Ecosia']:
 			return getDomainAssociated(links, search[search.find('ip:'):])
 	elif 'mail:' in search:
 		return getMailAccounts(links, search[search.find('mail:'):])

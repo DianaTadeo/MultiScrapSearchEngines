@@ -104,7 +104,8 @@ def ip(ip,obj_search,web_search):
 	#q=ip%3A192.168.190.10+local&oq=ip%3A192.168.190.10+local
 	query=''
 	if obj_search=='':
-		if web_search in ['Google', 'DuckDuckGo', 'Bing', 'Yahoo', 'Baidu', 'Ask', 'Exalead', 'Ecosia', 'AOL']:   query+='ip%3A'+ip+'&oq=ip%'+ip
+		if web_search in ['Google', 'DuckDuckGo', 'Bing', 'Yahoo', 'Baidu', 'Ask', 'Exalead', 'AOL']:   query+='ip%3A'+ip+'&oq=ip%'+ip
+		elif web_search == 'Ecosia': query+='ip%3A'+ip
 		elif web_search == 'Lycos': query+='ip+'+ip
 	else:
 		if web_search in ['Google', 'DuckDuckGo', 'Bing', 'Yahoo', 'Baidu', 'Ask', 'Exalead', 'Ecosia', 'AOL']:   query+='ip%3A'+ip+'+'+obj_search
