@@ -24,12 +24,13 @@ def printError(msg, eexit = False):
 
 def addOptions():
 	"""
-	Función para agregar las opciones al script (pruebas)
+	Función para agregar las opciones al script
 	"""
 	parser = argparse.ArgumentParser()
 	parser.add_argument('-p','--params', action='store_true', dest='param', default=False, help='Resultados con parámetros GET.')
 	parser.add_argument('-b','--busqueda', dest='busqueda', default=None, help='Busqueda que se va a realizar entre comillas dobles.')
-	parser.add_argument('-t', '--tor', action='store_true', dest = 'tor', default = False, help = 'Las peticiones se hacen por medio de TOR.')
+	parser.add_argument('-n', '--number_results', dest= 'number_results', type=int, default=50, help ='Indica el número de resultados a buscar (10, 20, 30, 40, ..., 100).')
+	parser.add_argument('-t', '--tor', action='store_true', dest = 'tor', default = False, help = 'Se cambia la dirección IP.')
 	parser.add_argument('-f', '--formato', dest= 'formato', help ='El formato que toma para regresar el reporte "html", "xml" o "txt".')
 
 	opts = parser.parse_args()
@@ -39,7 +40,6 @@ def checkOptions(options):
 	"""Función que verifica el estado de ciertas opciones para poder ejecutar el script"""
 	if options.busqueda is None:
 		printError('No se indicó la búsqueda a realizar.', True)
-	pass
 
 def getInfoRequest(session, header):
 	"""
@@ -67,13 +67,14 @@ def changeIP():
 		controller.authenticate()
 		controller.signal(Signal.NEWNYM)
 
-def makeRequest(search, search_engine, printInfoIP):
+def makeRequest(search, search_engine, printInfoIP, number_results = 50):
 	"""Función que realiza las peticiones anónimas.
-	Recibe: motor en donde realiza la búsqueda
-	Si --tor es True se realiza la petición a través de TOR mediante los proxies y session()
-	Si --agente es True se cambia el agente de usuario."""
+	Recibe: search (busqueda a realizar en loa motores)
+			search_engine (motor en donde realiza la búsqueda)
+			printInfoIP (bool que indica si se muestra la dirección IP y el Agent-User)
+			number_results (número de resultados que se arrojará por motor)
+	"""
 	# User Agent list: https://udger.com/resources/ua-list
-	session = Session()
 	user_agent = [
 		'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/72.0.3626.121 Safari/537.36',  # Chrome
 		'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.12; rv:58.0) Gecko/20100101 Firefox/58.0',  # Firefox
@@ -83,54 +84,66 @@ def makeRequest(search, search_engine, printInfoIP):
 		'Mozilla/5.0 (iPhone; CPU iPhone OS 6_0_1 like Mac OS X) AppleWebKit/536.26 (KHTML, like Gecko) Mercury/3.4 Mobile/10A523 Safari/8536.25',  # Mercury
 		'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/75.0.3739.0 Safari/537.36 Edge/75.0.109.0'  # Microsoft Edge
 	]
-	try:
-		header = {'User-agent':choice(user_agent)}  # Valor que se agrega al diccionario para cambiar el agente
-		session.proxies = {}
-		session.proxies['http'] = 'socks5://localhost:9050'  # Proxy http y https para realizar la petición mediante TOR
-		session.proxies['https'] = 'socks5://localhost:9050'
-		url = busqueda.fetch_results(busqueda.buildQuery(search, search_engine), search_engine)
-		#---------Session prepare_request--------------
-		response = requests.Request('GET', url, headers=header)
-		prepared = session.prepare_request(response)
-		resp = session.send(prepared, timeout = 5)
-		#print resp.text.encode('utf-8')
-		#---------Session simple---------
-		#result = session.get(query, headers = header)
-		#result.raise_for_status()
-		#print result.text.encode('utf-8')
-		#---------Sin anonimato-----------
-		#response =requests.get(query, headers=header)
-		#response.raise_for_status()
-		#print response.text.encode('utf-8')
-		if printInfoIP:	getInfoRequest(session, header)
-		return url, resp.text.encode('utf-8')
-		#print query
+	url = busqueda.fetch_results(busqueda.buildQuery(search, search_engine), search_engine, number_results)
+	while True:
+	#	try:
+			session = Session()
+			header = {'User-agent':choice(user_agent)}  # Valor que se agrega al diccionario para cambiar el agente
+			session.proxies = {}
+			if search_engine is 'Google':
+				session.proxies['http'] = ''  # Proxy para petición a Google, no se hace petición anónima
+				session.proxies['https'] = ''
+			else:
+				session.proxies['http'] = 'socks5://localhost:9050'  # Proxy http y https para realizar la petición mediante TOR
+				session.proxies['https'] = 'socks5://localhost:9050'
+			#---------Session prepare_request--------------
+			response = requests.Request('GET', url, headers=header)
+			prepared = session.prepare_request(response)
+			resp = session.send(prepared, timeout = 5)
 
-	except ConnectionError:
-		printError('Error en la conexion.',True)
+			if printInfoIP:	getInfoRequest(session, header)
+			if 'class="recaptcha_challenge_field"' not in resp.text.encode('utf-8') and resp.status_code == 200:
+				return url, resp.text.encode('utf-8')
+			else:
+				changeIP()
+				getInfoRequest(session, header)
+				print "Se cambió IP"
+	#	except ConnectionError as e:
+	#		print e
+	#		printError('Error en la conexion.',True)
 
 if __name__ == '__main__':
 	try:
 		opts = addOptions()
 		checkOptions(opts)
 		print 'La búsqueda es: %s' % opts.busqueda
-		for i in range(0,1): # Sería el número de veces que se hará la petición (por ejemplo para los correos que deberan ser varias)
-			#search_engines = ['Bing', 'Baidu', 'Yahoo', 'DuckDuckGo', 'AOL', 'Ask', 'Exalead', 'Lycos', 'Ecosia']
-			search_engines = ['Lycos', 'Bing', 'Ask']
-			search = opts.busqueda
-			printInfoIP = True
-			if opts.tor:  # Para pruebas de cambio de IP con tor
-				changeIP()
-			for search_engine in search_engines:
-				try:
-					url, query = makeRequest(search, search_engine, printInfoIP)
+#		for i in range(0,1): # Sería el número de veces que se hará la petición (por ejemplo para los correos que deberan ser varias)
+		search_engines = ['Bing', 'Baidu', 'Yahoo', 'DuckDuckGo', 'AOL', 'Ask', 'Exalead', 'Lycos', 'Ecosia', 'Google']
+		#search_engines = ['Google']
+		search = opts.busqueda
+		printInfoIP = True
+		if opts.tor:  # Para pruebas de cambio de IP con tor
+			changeIP()
+		for search_engine in search_engines:
+			try:
+				if search_engine in ['Ask', 'AOL', 'Ecosia', 'Exalead']:
+					pages = opts.number_results/10 # Number results ->50 / 10 = 5
+					for page in range(pages):
+						if search_engine == 'Ask': res = page+1
+						elif search_engine in ['AOL', 'Ecosia', 'Exalead']: res = page
+						url, query = makeRequest(search, search_engine, printInfoIP, res)
+						print '%s: %s' % (search_engine, url)  # Para debug
+						reporte.busquedaReporte(search, query, search_engine, opts.param, opts.formato)
+						printInfoIP = False
+				else:
+					url, query = makeRequest(search, search_engine, printInfoIP, opts.number_results)
 					print '%s: %s' % (search_engine, url)  # Para debug
 					reporte.busquedaReporte(search, query, search_engine, opts.param, opts.formato)
-				except Exception as e:
-					print e #'Ocurrió un error para este motor.'
-					continue
-				printInfoIP = False
-			sleep(5)  # Tor no permite asignar nuevas direcciones inmediatamente
+			except Exception as e:
+				print e #'Ocurrió un error para este motor.'
+				continue
+			printInfoIP = False
+#			sleep(5)  # Tor no permite asignar nuevas direcciones inmediatamente
 
 	except Exception as e:
 		printError('Ocurrio un error inesperado')

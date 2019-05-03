@@ -30,14 +30,11 @@ def fetch_results(search_term, search_engine, number_results = 50, language_code
 	elif search_engine == 'Bing': url = 'https://www.bing.com/search?q={}&count={}'.format(search_term, number_results)
 	elif search_engine == 'Yahoo': url = 'https://search.yahoo.com/search?p={}&n={}'.format(search_term, number_results)
 	elif search_engine == 'Baidu': url = 'https://www.baidu.com/s?ie=utf-8&f=8&rsv_bp=1&tn=baidu&wd={}&rqlang=all&rsv_enter=1&rn={}'.format(search_term, number_results)
-	elif search_engine == 'Ask': url = 'https://www.ask.com/web?q={}'.format(search_term)
-	elif search_engine == 'AOL': url = 'https://search.aol.com/aol/search?q={}&pz={}'.format(search_term,number_results)
+	elif search_engine == 'Ask': url = 'https://www.ask.com/web?q={}&page={}'.format(search_term, number_results)
+	elif search_engine == 'AOL': url = 'https://search.aol.com/aol/search?q={}&b={}1&pz=10'.format(search_term,number_results)
 	elif search_engine == 'Lycos': url = 'http://search.lycos.es/web/?q={}&OrigLycosTld=es&keyvol=1'.format(search_term)
-	elif search_engine == 'Ecosia': url = 'https://www.ecosia.org/search?q={}'.format(search_term)
-	elif search_engine == 'Exalead': url = 'https://www.exalead.com/search/web/results/?q={}&elements_per_page={}'.format(search_term,number_results)
-
-	#response = requests.get(url, headers=USER_AGENT)
-	#response.raise_for_status()
+	elif search_engine == 'Ecosia': url = 'https://www.ecosia.org/search?p={}&q={}'.format(number_results, search_term)
+	elif search_engine == 'Exalead': url = 'https://www.exalead.com/search/web/results/?q={}&elements_per_page=10&start_index={}0'.format(search_term,number_results)
 
 	return url #search_term, response.text.encode('utf-8')#aun no resuelvo bien esto de la codificacion, pero con este hay salida
 
@@ -204,7 +201,3 @@ def op_or(objL_search,objR_search,web_search):
 	elif web_search == 'Exalead':    query += '('+objL_search+')+OR+('+objR_search+')'
 	elif web_search == 'Lycos': query+= objL_search+'+%7C+'+objR_search
 	return query
-
-def search_results(search, search_engine, number_results = 50, language_code = 'en'):
-	"""Función para llamar a fetch_results desde modulo de reporte sin tener que llamar a buildQuery desde ese módulo"""
-	return fetch_results(buildQuery(search, search_engine), search_engine, number_results, language_code)

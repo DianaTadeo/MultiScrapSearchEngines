@@ -96,15 +96,17 @@ def busquedaReporte(search, query, search_engine, param, formato):
 	Devuelve: lista con los resultados
 	"""
 	soup = beautifulSoup(query)
-	if search_engine in ['Google', 'Bing', 'DuckDuckGo', 'Ask', 'Exalead']:
+	if search_engine in ['Google', 'Bing', 'DuckDuckGo', 'Exalead']:
 		if 'mail:' in search:
 			if search_engine == 'Google':	links = list(set([ href.text for href in soup.find_all('span', class_="st") ]))
 			if search_engine == 'Bing':	links = list(set([ re.sub('\n\s*', '', href.find('p').text) for href in soup.find_all('div', class_="b_caption") ]))
 			if search_engine == 'DuckDuckGo':	links = list(set([ href.text for href in soup.find_all('a', class_="result__snippet") ]))
-			if search_engine == 'Ask':	links = list(set([ re.sub('\n\s*', '', href.text) for href in soup.find_all('p', class_="PartialSearchResults-item-abstract") ]))
 			if search_engine == 'Exalead':	links = list(set([ href.text for href in soup.find_all('span', class_="ellipsis") ]))
 		else:
 			links = getLinks([ href.get('href') for href in soup.findAll('a') ]) # Google
+	elif search_engine == 'Ask':
+		if 'mail:' in search:	links = list(set([ re.sub('\n\s*', '', href.text) for href in soup.find_all('p', class_="PartialSearchResults-item-abstract") ]))
+		else:	links = list(set([ href.get('href') for href in soup.find_all('a', class_="PartialSearchResults-item-title-link result-link") ]))
 
 	elif search_engine in ['Yahoo', 'AOL']:
 		if 'filetype:' in search or 'site:' in search: links_format = [ href.find('a', href=True)['href'] for href in soup.find('div', id='web').findAll('h3') ]  # filetype
